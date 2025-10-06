@@ -1,0 +1,45 @@
+{
+  "name": "playwright-typescript-project",
+  "version": "1.0.0",
+  "description": "A Playwright project with TypeScript and CI/CD pipeline",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:safari": "playwright test --project=webkit",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install",
+    "codegen": "playwright codegen"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "testing",
+    "e2e",
+    "automation",
+    "ci-cd"
+  ],
+  "author": "your-github-username",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-github-username/playwright-typescript-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-github-username/playwright-typescript-project/issues"
+  },
+  "homepage": "https://github.com/your-github-username/playwright-typescript-project#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

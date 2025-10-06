@@ -1,0 +1,14 @@
+# Git Configuration
+[user]
+    name = Your Name
+    email = your.email@example.com
+
+[core]
+    autocrlf = input
+    safecrlf = true
+
+[push]
+    default = simple
+
+[pull]
+    rebase = false
