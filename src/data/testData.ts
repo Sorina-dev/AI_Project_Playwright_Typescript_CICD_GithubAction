@@ -52,7 +52,7 @@ export const expectedMessages = {
     invalidPassword: 'Your password is invalid!'
   },
   navigation: {
-    playwrightTitle: 'Playwright'
+    playwrightTitle: 'playwright'
   }
 };
 

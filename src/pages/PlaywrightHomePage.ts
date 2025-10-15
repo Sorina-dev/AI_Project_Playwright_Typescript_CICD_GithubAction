@@ -19,6 +19,7 @@ export class PlaywrightHomePage extends BasePage {
   private readonly searchButton: Locator;
   private readonly featuresSection: Locator;
   private readonly codeExample: Locator;
+  private readonly getStartedMenu: Locator;
 
   constructor(page: Page) {
     super(page, 'https://playwright.dev');
@@ -28,11 +29,12 @@ export class PlaywrightHomePage extends BasePage {
     this.mainHeading = page.locator('h1').first();
     this.docsLink = page.locator('text=Docs').first();
     this.getStartedButton = page.locator('text=Get started');
-    this.githubLink = page.locator('[aria-label="GitHub"]');
+    this.githubLink = page.locator('[aria-label="GitHub repository"]');
     this.navigationMenu = page.locator('nav[role="navigation"]');
+    this.getStartedMenu = page.locator('[class="getStarted_Sjon"]');
     this.searchButton = page.locator('[aria-label="Search"]');
     this.featuresSection = page.locator('text=Cross-browser').first();
-    this.codeExample = page.locator('pre').first();
+    this.codeExample = page.locator('text=Codegen');
   }
 
   /**
@@ -96,7 +98,7 @@ export class PlaywrightHomePage extends BasePage {
    * Assert that the homepage loaded correctly
    */
   async assertHomePageLoaded(): Promise<void> {
-    await this.assertPageTitle('Playwright');
+    await this.assertPageTitle('playwright');
     await this.assertElementVisible(this.mainHeading);
     await this.assertElementText(this.mainHeading, 'Playwright');
   }
@@ -105,9 +107,12 @@ export class PlaywrightHomePage extends BasePage {
    * Assert that navigation elements are present
    */
   async assertNavigationPresent(): Promise<void> {
+    console.log('Asserting navigation elements are present docsLink');
     await this.assertElementVisible(this.docsLink);
+    console.log('Asserting navigation elements are present githubLink');
     await this.assertElementVisible(this.githubLink);
-    await this.assertElementVisible(this.navigationMenu);
+    console.log('Asserting navigation elements are present getStartedMenu');
+    await this.assertElementVisible(this.getStartedMenu);
   }
 
   /**

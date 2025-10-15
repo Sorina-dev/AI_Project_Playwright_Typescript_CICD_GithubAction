@@ -53,7 +53,7 @@ export abstract class BasePage {
 
 ```typescript
 export class LoginPage extends BasePage {
-  // 📍 LOCATORS - How to find elements
+  // 📍 LOCATORS - How to find elements as porperties
   private readonly usernameInput: Locator;
   private readonly passwordInput: Locator;
   private readonly loginButton: Locator;

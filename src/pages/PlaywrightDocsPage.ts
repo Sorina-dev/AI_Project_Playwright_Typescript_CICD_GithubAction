@@ -8,7 +8,7 @@ import { BasePage } from './BasePage';
 export class PlaywrightDocsPage extends BasePage {
   // Locators
   private readonly pageHeading: Locator;
-  private readonly sidebarNavigation: Locator;
+  private readonly docsSidebarNavigation: Locator;
   private readonly breadcrumbs: Locator;
   private readonly contentArea: Locator;
   private readonly searchBox: Locator;
@@ -23,7 +23,7 @@ export class PlaywrightDocsPage extends BasePage {
     
     // Initialize locators
     this.pageHeading = page.locator('h1').first();
-    this.sidebarNavigation = page.locator('[data-testid="sidebar"]');
+    this.docsSidebarNavigation = page.locator('[aria-label="Docs sidebar"]');
     this.breadcrumbs = page.locator('[aria-label="Breadcrumbs"]');
     this.contentArea = page.locator('main');
     this.searchBox = page.locator('[placeholder*="Search"]');
@@ -103,7 +103,7 @@ export class PlaywrightDocsPage extends BasePage {
    * Get all visible sidebar navigation items
    */
   async getSidebarNavItems(): Promise<string[]> {
-    const navItems = this.sidebarNavigation.locator('a');
+    const navItems = this.docsSidebarNavigation.locator('a');
     const count = await navItems.count();
     const items: string[] = [];
     
@@ -161,7 +161,7 @@ export class PlaywrightDocsPage extends BasePage {
   async assertDocsPageLoaded(): Promise<void> {
     await this.assertElementVisible(this.pageHeading);
     await this.assertElementVisible(this.contentArea);
-    await this.assertElementVisible(this.sidebarNavigation);
+    await this.assertElementVisible(this.docsSidebarNavigation);
   }
 
   /**
@@ -175,7 +175,7 @@ export class PlaywrightDocsPage extends BasePage {
    * Assert that navigation elements are present
    */
   async assertNavigationPresent(): Promise<void> {
-    await this.assertElementVisible(this.sidebarNavigation);
+    await this.assertElementVisible(this.docsSidebarNavigation);
     // Note: Next/Previous links may not always be present, so we don't assert them
   }
 
