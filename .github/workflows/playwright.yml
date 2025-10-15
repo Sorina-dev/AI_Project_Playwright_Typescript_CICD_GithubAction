@@ -81,7 +81,7 @@ jobs:
         retention-days: 30
 
   deploy-report:
-    needs: [test, test-mobile]
+    needs: [e2e, test-mobile]
     runs-on: ubuntu-latest
     if: always()
     
