@@ -26,7 +26,7 @@
     "noUncheckedIndexedAccess": true
   },
   "include": [
-    "tests/**/*",
+    "e2e/**/*",
     "src/**/*",
     "playwright.config.ts"
   ],
