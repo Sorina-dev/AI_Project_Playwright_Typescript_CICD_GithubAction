@@ -12,6 +12,13 @@
     "test:firefox": "playwright test --project=firefox",
     "test:safari": "playwright test --project=webkit",
     "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:accessibility": "playwright test accessibility-tests.spec.ts",
+    "test:a11y": "playwright test accessibility-tests.spec.ts --reporter=line",
+    "test:visual": "playwright test visual-testing-simple.spec.ts --project=chromium",
+    "test:visual-all": "playwright test visual-testing-simple.spec.ts",
+    "test:visual-comprehensive": "playwright test visual-testing-comprehensive.spec.ts --project=chromium",
+    "test:visual-update": "playwright test visual-testing-simple.spec.ts --update-snapshots --project=chromium",
+    "test:visual-cross-browser": "playwright test visual-testing-simple.spec.ts --project=chromium --project=firefox --project=webkit",
     "report": "playwright show-report",
     "install:browsers": "playwright install",
     "codegen": "playwright codegen"

@@ -2,7 +2,7 @@ import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 /**
- * Page Object Model for Playwright.dev homepage
+ * Page Object Model for the Playwright.dev homepage
  * Contains all locators and methods specific to the Playwright homepage
  */
 export class PlaywrightHomePage extends BasePage {
@@ -10,12 +10,10 @@ export class PlaywrightHomePage extends BasePage {
   private readonly url = 'https://playwright.dev/';
 
   // Locators
-  private readonly pageTitle: Locator;
   private readonly mainHeading: Locator;
   private readonly docsLink: Locator;
   private readonly getStartedButton: Locator;
   private readonly githubLink: Locator;
-  private readonly navigationMenu: Locator;
   private readonly searchButton: Locator;
   private readonly featuresSection: Locator;
   private readonly codeExample: Locator;
@@ -25,12 +23,10 @@ export class PlaywrightHomePage extends BasePage {
     super(page, 'https://playwright.dev');
     
     // Initialize locators
-    this.pageTitle = page.locator('title');
     this.mainHeading = page.locator('h1').first();
     this.docsLink = page.locator('text=Docs').first();
     this.getStartedButton = page.locator('text=Get started');
     this.githubLink = page.locator('[aria-label="GitHub repository"]');
-    this.navigationMenu = page.locator('nav[role="navigation"]');
     this.getStartedMenu = page.locator('[class="getStarted_Sjon"]');
     this.searchButton = page.locator('[aria-label="Search"]');
     this.featuresSection = page.locator('text=Cross-browser').first();
@@ -117,9 +113,9 @@ export class PlaywrightHomePage extends BasePage {
 
   /**
    * Search for content (if search functionality exists)
-   * @param searchTerm - The term to search for
+   * @param _searchTerm - The term to search for (parameter reserved for future implementation)
    */
-  async searchContent(searchTerm: string): Promise<void> {
+  async searchContent(_searchTerm: string): Promise<void> {
     if (await this.isVisible(this.searchButton)) {
       await this.clickElement(this.searchButton);
       // Additional search functionality would go here

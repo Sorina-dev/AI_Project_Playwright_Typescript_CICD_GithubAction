@@ -7,10 +7,12 @@ A comprehensive Playwright testing project with TypeScript support and GitHub Ac
 - **TypeScript Support**: Full TypeScript configuration for type-safe test development
 - **Cross-Browser Testing**: Tests run on Chromium, Firefox, and WebKit
 - **Mobile Testing**: Responsive testing with mobile device emulation
-- **Visual Testing**: Screenshot comparison and visual regression testing
+- **🎨 Visual Testing**: Screenshot comparison and visual regression testing across devices
+- **♿ Accessibility Testing**: Comprehensive WCAG 2.1 Level AA compliance testing
 - **CI/CD Pipeline**: Automated testing with GitHub Actions
-- **Multiple Test Types**: Navigation, form interaction, and visual tests
+- **Multiple Test Types**: Navigation, form interaction, visual, and accessibility tests
 - **Detailed Reporting**: HTML reports with screenshots and videos
+- **Production Ready**: Comprehensive test suites with CI/CD integration
 
 ## 📋 Prerequisites
 
@@ -94,6 +96,39 @@ npm run test:safari
 npm run test:mobile
 ```
 
+### Accessibility Tests
+
+```bash
+# Run accessibility tests
+npx playwright test accessibility-tests.spec.ts
+
+# Run accessibility tests with detailed output
+npx playwright test accessibility-tests.spec.ts --reporter=line
+
+# Run specific accessibility test category
+npx playwright test accessibility-tests.spec.ts --grep "Document Structure"
+```
+
+For comprehensive accessibility testing guidance, see: [`docs/accessibility-testing-guide.md`](docs/accessibility-testing-guide.md)
+
+### Visual Tests
+
+```bash
+# Run visual regression tests
+npx playwright test visual-testing-simple.spec.ts
+
+# Run comprehensive visual tests
+npx playwright test visual-testing-comprehensive.spec.ts
+
+# Update visual baselines
+npx playwright test visual-testing-simple.spec.ts --update-snapshots
+
+# Run specific visual test category
+npx playwright test visual-testing-simple.spec.ts --grep "Screenshot Testing"
+```
+
+For comprehensive visual testing guidance, see: [`docs/visual-testing-guide.md`](docs/visual-testing-guide.md)
+
 ### Generate Test Code
 
 ```bash
@@ -114,16 +149,57 @@ Reports are generated in `playwright-report/` directory and include:
 - Video recordings
 - Performance metrics
 
+## 🎯 Available NPM Scripts
+
+### Core Testing
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run all tests |
+| `npm run test:headed` | Run tests in headed mode (visible browser) |
+| `npm run test:debug` | Run tests in debug mode |
+| `npm run test:ui` | Launch Playwright UI mode |
+| `npm run codegen` | Generate test code interactively |
+| `npm run report` | View HTML test report |
+
+### Visual Testing
+| Command | Description |
+|---------|-------------|
+| `npm run test:visual` | Run visual regression tests (simple suite) |
+| `npm run test:visual-comprehensive` | Run advanced visual tests |
+| `npm run test:visual-update` | Update visual test baselines |
+| `npm run test:visual-cross-browser` | Cross-browser visual testing |
+
+### Accessibility Testing
+| Command | Description |
+|---------|-------------|
+| `npm run test:accessibility` | Run accessibility compliance tests |
+| `npm run test:accessibility-comprehensive` | Full accessibility test suite |
+
+### Development
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies |
+| `npm run install-playwright` | Install Playwright browsers |
+| `npm run lint` | Check code style (if configured) |
+
 ## 🗂️ Project Structure
 
 ```
 ├── .github/
 │   └── workflows/
-│       └── playwright.yml         # GitHub Actions CI/CD pipeline
+│       ├── playwright.yml         # Main CI/CD pipeline
+│       └── visual-tests.yml       # Visual testing CI/CD pipeline
 ├── tests/                         # Test files
 │   ├── example.spec.ts            # Basic navigation tests
 │   ├── forms.spec.ts              # Form interaction tests
-│   └── visual.spec.ts             # Visual testing examples
+│   ├── visual.spec.ts             # Basic visual testing examples
+│   ├── visual-testing-simple.spec.ts      # Comprehensive visual testing suite
+│   ├── visual-testing-comprehensive.spec.ts # Advanced visual testing patterns
+│   └── accessibility-tests.spec.ts # Accessibility testing suite
+├── docs/                          # Documentation
+│   ├── accessibility-testing-guide.md # Comprehensive accessibility guide
+│   ├── visual-testing-guide.md    # Comprehensive visual testing guide
+│   └── visual-testing-workflow.md # Visual testing workflow & CI/CD guide
 ├── test-results/                  # Test artifacts (auto-generated)
 ├── playwright-report/             # HTML reports (auto-generated)
 ├── playwright.config.ts           # Playwright configuration
@@ -153,20 +229,25 @@ Configured for:
 
 ## 🚀 CI/CD Pipeline
 
-The GitHub Actions pipeline (`.github/workflows/playwright.yml`) automatically:
+### Main Pipeline (`.github/workflows/playwright.yml`)
+Automatically runs on pushes and PRs:
+- **Node.js Matrix**: 18.x, 20.x versions
+- **Cross-Browser**: Chromium, Firefox, WebKit  
+- **Mobile Testing**: Separate job with device emulation
+- **Artifacts**: Reports, screenshots, videos (30 days retention)
 
-1. **Triggers on:**
-   - Push to `main` or `develop` branches
-   - Pull requests to `main` branch
+### Visual Testing Pipeline (`.github/workflows/visual-tests.yml`)
+Comprehensive visual regression testing:
+- **Quick Tests**: PR validation (~30s)
+- **Cross-Browser**: Main branch pushes (~2min)
+- **Comprehensive**: Daily scheduled runs (~5min)
+- **Baseline Management**: Auto-update snapshots with commit triggers
 
-2. **Test Matrix:**
-   - Node.js versions: 18.x, 20.x
-   - Browsers: Chromium, Firefox, WebKit
-   - Mobile testing on separate job
+**Special Commit Messages:**
+- `[visual-full]` → Trigger comprehensive visual tests
+- `[update-baselines]` → Update visual test baselines
 
-3. **Artifacts:**
-   - Test reports uploaded for 30 days
-   - Screenshots and videos on failures
+For detailed workflow guide: [`docs/visual-testing-workflow.md`](docs/visual-testing-workflow.md)
 
 ### Setting up CI/CD
 
