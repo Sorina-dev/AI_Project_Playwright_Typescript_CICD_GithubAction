@@ -68,16 +68,6 @@ The project includes a comprehensive visual testing pipeline (`.github/workflows
 | Commit with `[visual-full]` | All tests | ~10min |
 | Commit with `[update-baselines]` | Update snapshots | ~30s |
 
-## Test Suites
-
-### 📸 Simple Suite (`visual-testing-simple.spec.ts`)
-**15 focused tests** - Production ready
-- Full page & viewport screenshots
-- Responsive design (mobile, tablet, desktop)
-- Theme testing (light/dark)
-- Interactive states (focus, hover)
-- Layout validation
-- Cross-browser consistency
 
 ### 🔬 Comprehensive Suite (`visual-testing-comprehensive.spec.ts`) 
 **20+ advanced tests** - Educational/advanced scenarios

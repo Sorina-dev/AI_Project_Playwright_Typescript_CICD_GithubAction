@@ -17,13 +17,13 @@ import { test, expect } from '@playwright/test';
  * In real scenarios, you would connect to actual test databases.
  */
 
-// Mock database configuration
+// Mock database configuration (for testing purposes only)
 const dbConfig = {
-  host: process.env['DB_HOST'] || 'localhost',
-  port: process.env['DB_PORT'] || '5432',
-  database: process.env['DB_NAME'] || 'test_db',
-  username: process.env['DB_USER'] || 'test_user',
-  password: process.env['DB_PASSWORD'] || 'test_password'
+  host: 'localhost',
+  port: '5432', 
+  database: 'test_db',
+  username: 'test_user',
+  password: 'test_password' // Mock password - not used in actual connections
 };
 
 // Test data for database operations
@@ -88,18 +88,18 @@ class MockDatabase {
   async connect(): Promise<boolean> {
     // Simulate connection delay
     await new Promise(resolve => setTimeout(resolve, 100));
-    console.log(`📡 Connected to database: ${dbConfig.host}:${dbConfig.port}`);
+    console.log(` Connected to database: ${dbConfig.host}:${dbConfig.port}`);
     return true;
   }
 
   async disconnect(): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 50));
-    console.log('🔌 Database connection closed');
+    console.log(' Database connection closed');
   }
 
   async executeQuery(query: string, params?: any[]): Promise<any> {
-    console.log(`🔍 Executing query: ${query}`);
-    if (params) console.log(`📋 Parameters: ${JSON.stringify(params)}`);
+    console.log(` Executing query: ${query}`);
+    if (params) console.log(` Parameters: ${JSON.stringify(params)}`);
     
     // Simulate query execution time
     await new Promise(resolve => setTimeout(resolve, 50));
@@ -147,15 +147,15 @@ class MockDatabase {
   }
 
   async beginTransaction(): Promise<void> {
-    console.log('🔄 Transaction started');
+    console.log(' Transaction started');
   }
 
   async commitTransaction(): Promise<void> {
-    console.log('✅ Transaction committed');
+    console.log('Transaction committed');
   }
 
   async rollbackTransaction(): Promise<void> {
-    console.log('🔄 Transaction rolled back');
+    console.log('Transaction rolled back');
   }
 
   // Utility method to reset data
@@ -173,36 +173,36 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   // Setup and teardown
   test.beforeAll(async () => {
-    console.log('🚀 Setting up database testing environment...');
+    console.log(' Setting up database testing environment...');
     db = new MockDatabase();
   });
 
   test.beforeEach(async () => {
-    console.log('🔄 Preparing test database state...');
+    console.log(' Preparing test database state...');
     await db.connect();
     db.resetData(); // Reset to initial state for each test
   });
 
   test.afterEach(async () => {
-    console.log('🧹 Cleaning up after test...');
+    console.log(' Cleaning up after test...');
     await db.disconnect();
   });
 
-  test.describe('📡 Database Connectivity Tests', () => {
+  test.describe(' Database Connectivity Tests', () => {
 
-    test('🔌 Should establish database connection successfully', async () => {
-      console.log('🎯 Testing database connection establishment');
+    test(' Should establish database connection successfully', async () => {
+      console.log(' Testing database connection establishment');
       
       // Test connection
       const isConnected = await db.connect();
       
       // Verify connection
       expect(isConnected).toBe(true);
-      console.log('✅ Database connection established successfully');
+      console.log('Database connection established successfully');
     });
 
-    test('🔍 Should handle connection timeout gracefully', async () => {
-      console.log('🎯 Testing connection timeout handling');
+    test(' Should handle connection timeout gracefully', async () => {
+      console.log('Testing connection timeout handling');
       
       // Simulate connection timeout scenario
       const startTime = Date.now();
@@ -213,29 +213,29 @@ test.describe('🗄️ Database Testing Suite', () => {
         
         // Verify reasonable connection time
         expect(connectionTime).toBeLessThan(5000); // Should connect within 5 seconds
-        console.log(`✅ Connection established in ${connectionTime}ms`);
+        console.log(` Connection established in ${connectionTime}ms`);
       } catch (error) {
-        console.log('⚠️ Connection timeout handled appropriately');
+        console.log(' Connection timeout handled appropriately');
         expect(error).toBeDefined();
       }
     });
 
-    test('🔒 Should validate database credentials', async () => {
-      console.log('🎯 Testing database credential validation');
+    test(' Should validate database credentials', async () => {
+      console.log(' Testing database credential validation');
       
       // Test with valid credentials
       const connection = await db.connect();
       expect(connection).toBe(true);
       
-      console.log('✅ Database credentials validated successfully');
+      console.log(' Database credentials validated successfully');
     });
 
   });
 
-  test.describe('📊 CRUD Operations Testing', () => {
+  test.describe(' CRUD Operations Testing', () => {
 
-    test('📖 CREATE - Should insert new user record', async () => {
-      console.log('🎯 Testing CREATE operation - Insert new user');
+    test(' CREATE - Should insert new user record', async () => {
+      console.log(' Testing CREATE operation - Insert new user');
       
       const newUser = {
         name: 'Alice Johnson',
@@ -258,12 +258,12 @@ test.describe('🗄️ Database Testing Suite', () => {
       const users = await db.executeQuery('SELECT * FROM users WHERE email = ?', [newUser.email]);
       expect(users).toBeDefined();
       
-      console.log(`✅ User created successfully with ID: ${result.insertId}`);
+      console.log(` User created successfully with ID: ${result.insertId}`);
     });
 
-    test('📚 READ - Should retrieve user records', async () => {
-      console.log('🎯 Testing READ operation - Retrieve users');
-      
+    test(' READ - Should retrieve user records', async () => {
+      console.log(' Testing READ operation - Retrieve users');
+
       // Execute SELECT query
       const users = await db.executeQuery('SELECT * FROM users');
       
@@ -279,11 +279,11 @@ test.describe('🗄️ Database Testing Suite', () => {
       expect(user).toHaveProperty('age');
       expect(user).toHaveProperty('department');
       
-      console.log(`✅ Retrieved ${users.length} user records successfully`);
+      console.log(`Retrieved ${users.length} user records successfully`);
     });
 
-    test('✏️ UPDATE - Should modify existing user record', async () => {
-      console.log('🎯 Testing UPDATE operation - Modify user');
+    test('UPDATE - Should modify existing user record', async () => {
+      console.log('Testing UPDATE operation - Modify user');
       
       const userId = 1;
       const updatedData = {
@@ -306,11 +306,11 @@ test.describe('🗄️ Database Testing Suite', () => {
       expect(updatedUser.name).toBe(updatedData.name);
       expect(updatedUser.department).toBe(updatedData.department);
       
-      console.log(`✅ User ${userId} updated successfully`);
+      console.log(` User ${userId} updated successfully`);
     });
 
-    test('🗑️ DELETE - Should remove user record', async () => {
-      console.log('🎯 Testing DELETE operation - Remove user');
+    test('DELETE - Should remove user record', async () => {
+      console.log('Testing DELETE operation - Remove user');
       
       const userId = 2;
       
@@ -328,15 +328,15 @@ test.describe('🗄️ Database Testing Suite', () => {
       const finalUsers = await db.executeQuery('SELECT * FROM users');
       expect(finalUsers.length).toBe(initialCount - 1);
       
-      console.log(`✅ User ${userId} deleted successfully`);
+      console.log(` User ${userId} deleted successfully`);
     });
 
   });
 
-  test.describe('🔄 Transaction Testing', () => {
+  test.describe(' Transaction Testing', () => {
 
-    test('✅ Should commit successful transaction', async () => {
-      console.log('🎯 Testing successful transaction commit');
+    test('Should commit successful transaction', async () => {
+      console.log('Testing successful transaction commit');
       
       try {
         // Begin transaction
@@ -360,7 +360,7 @@ test.describe('🗄️ Database Testing Suite', () => {
         // Commit transaction
         await db.commitTransaction();
         
-        console.log('✅ Transaction committed successfully');
+        console.log('Transaction committed successfully');
         
       } catch (error) {
         await db.rollbackTransaction();
@@ -368,8 +368,8 @@ test.describe('🗄️ Database Testing Suite', () => {
       }
     });
 
-    test('🔄 Should rollback failed transaction', async () => {
-      console.log('🎯 Testing transaction rollback');
+    test('Should rollback failed transaction', async () => {
+      console.log('Testing transaction rollback');
       
       try {
         // Begin transaction
@@ -384,30 +384,30 @@ test.describe('🗄️ Database Testing Suite', () => {
         
         // Simulate operation that would fail
         // In real scenario, this might be a constraint violation
-        console.log('💥 Simulating operation failure...');
+        console.log('Simulating operation failure...');
         
         // Rollback transaction
         await db.rollbackTransaction();
         
-        console.log('✅ Transaction rolled back successfully');
+        console.log('Transaction rolled back successfully');
         
       } catch (error) {
         await db.rollbackTransaction();
-        console.log('✅ Transaction rollback handled properly');
+        console.log('Transaction rollback handled properly');
       }
     });
 
   });
 
-  test.describe('🔍 Data Integrity Testing', () => {
+  test.describe(' Data Integrity Testing', () => {
 
-    test('📊 Should validate data types and constraints', async () => {
-      console.log('🎯 Testing data types and constraints');
-      
+    test('Should validate data types and constraints', async () => {
+      console.log('Testing data types and constraints');
+
       const users = await db.executeQuery('SELECT * FROM users');
       
       users.forEach((user: any, index: number) => {
-        console.log(`  📋 Validating user ${index + 1}: ${user.name}`);
+        console.log(`Validating user ${index + 1}: ${user.name}`);
         
         // Validate data types
         expect(typeof user.id).toBe('number');
@@ -423,14 +423,14 @@ test.describe('🗄️ Database Testing Suite', () => {
         expect(user.age).toBeGreaterThan(0);
         expect(user.age).toBeLessThan(150); // Reasonable age range
         
-        console.log(`    ✅ User ${user.name} validation passed`);
+        console.log(` User ${user.name} validation passed`);
       });
       
-      console.log('✅ All data integrity checks passed');
+      console.log('All data integrity checks passed');
     });
 
-    test('🔗 Should validate referential integrity', async () => {
-      console.log('🎯 Testing referential integrity');
+    test('Should validate referential integrity', async () => {
+      console.log('Testing referential integrity');
       
       // Get orders and verify user references
       const orders = await db.executeQuery('SELECT * FROM orders');
@@ -444,7 +444,7 @@ test.describe('🗄️ Database Testing Suite', () => {
       const ordersArray = Array.isArray(orders) ? orders : [];
       
       ordersArray.forEach((order: any) => {
-        console.log(`  📋 Validating order ${order.id}`);
+        console.log(`Validating order ${order.id}`);
         
         // Verify foreign key references exist
         expect(userIds).toContain(order.user_id);
@@ -455,14 +455,14 @@ test.describe('🗄️ Database Testing Suite', () => {
         expect(order.total_amount).toBeGreaterThan(0);
         expect(['pending', 'processing', 'completed', 'cancelled']).toContain(order.status);
         
-        console.log(`    ✅ Order ${order.id} referential integrity verified`);
+        console.log(`Order ${order.id} referential integrity verified`);
       });
       
-      console.log('✅ Referential integrity validation completed');
+      console.log('Referential integrity validation completed');
     });
 
-    test('🔒 Should validate unique constraints', async () => {
-      console.log('🎯 Testing unique constraints');
+    test('Should validate unique constraints', async () => {
+      console.log('Testing unique constraints');
       
       const users = await db.executeQuery('SELECT * FROM users');
       
@@ -471,23 +471,23 @@ test.describe('🗄️ Database Testing Suite', () => {
       const uniqueEmails = [...new Set(emails)];
       
       expect(emails.length).toBe(uniqueEmails.length);
-      console.log(`✅ Email uniqueness validated: ${emails.length} unique emails`);
+      console.log(` Email uniqueness validated: ${emails.length} unique emails`);
       
       // Verify no duplicate IDs
       const ids = users.map((u: any) => u.id);
       const uniqueIds = [...new Set(ids)];
       
       expect(ids.length).toBe(uniqueIds.length);
-      console.log(`✅ ID uniqueness validated: ${ids.length} unique IDs`);
+      console.log(`ID uniqueness validated: ${ids.length} unique IDs`);
     });
 
   });
 
-  test.describe('⚡ Database Performance Testing', () => {
+  test.describe('Database Performance Testing', () => {
 
-    test('🚀 Should execute queries within performance thresholds', async () => {
-      console.log('🎯 Testing query performance');
-      
+    test('Should execute queries within performance thresholds', async () => {
+      console.log('Testing query performance');
+
       const performanceTests = [
         { name: 'SELECT users', query: 'SELECT * FROM users', maxTime: 100 },
         { name: 'SELECT products', query: 'SELECT * FROM products', maxTime: 100 },
@@ -495,22 +495,22 @@ test.describe('🗄️ Database Testing Suite', () => {
       ];
       
       for (const test of performanceTests) {
-        console.log(`  ⏱️ Testing ${test.name} performance...`);
+        console.log(`Testing ${test.name} performance...`);
         
         const startTime = Date.now();
         await db.executeQuery(test.query);
         const executionTime = Date.now() - startTime;
         
         expect(executionTime).toBeLessThan(test.maxTime);
-        console.log(`    ✅ ${test.name} executed in ${executionTime}ms (< ${test.maxTime}ms)`);
+        console.log(`${test.name} executed in ${executionTime}ms (< ${test.maxTime}ms)`);
       }
       
-      console.log('✅ All performance tests passed');
+      console.log('All performance tests passed');
     });
 
-    test('📈 Should handle concurrent database operations', async () => {
-      console.log('🎯 Testing concurrent database operations');
-      
+    test('Should handle concurrent database operations', async () => {
+      console.log('Testing concurrent database operations');
+
       const concurrentOperations = [
         db.executeQuery('SELECT * FROM users'),
         db.executeQuery('SELECT * FROM products'),
@@ -527,19 +527,19 @@ test.describe('🗄️ Database Testing Suite', () => {
       expect(results).toHaveLength(5);
       results.forEach((result, index) => {
         expect(result).toBeDefined();
-        console.log(`    ✅ Concurrent operation ${index + 1} completed`);
+        console.log(`Concurrent operation ${index + 1} completed`);
       });
       
-      console.log(`✅ All concurrent operations completed in ${totalTime}ms`);
+      console.log(`All concurrent operations completed in ${totalTime}ms`);
     });
 
   });
 
-  test.describe('🔍 Data Migration Testing', () => {
+  test.describe('Data Migration Testing', () => {
 
-    test('📤 Should export data successfully', async () => {
-      console.log('🎯 Testing data export functionality');
-      
+    test('Should export data successfully', async () => {
+      console.log('Testing data export functionality');
+
       // Simulate data export
       const users = await db.executeQuery('SELECT * FROM users');
       const products = await db.executeQuery('SELECT * FROM products');
@@ -560,12 +560,12 @@ test.describe('🗄️ Database Testing Suite', () => {
       expect(exportData.exportDate).toBeDefined();
       expect(exportData.version).toBeDefined();
       
-      console.log(`✅ Data export completed: ${users.length} users, ${products.length} products, ${orders.length} orders`);
+      console.log(`Data export completed: ${users.length} users, ${products.length} products, ${orders.length} orders`);
     });
 
-    test('📥 Should import data successfully', async () => {
-      console.log('🎯 Testing data import functionality');
-      
+    test('Should import data successfully', async () => {
+      console.log('Testing data import functionality');
+
       // Simulate data import
       const importData = {
         users: [
@@ -592,7 +592,7 @@ test.describe('🗄️ Database Testing Suite', () => {
         );
         
         expect(result.rowsAffected).toBe(1);
-        console.log(`    ✅ Imported user: ${user.name}`);
+        console.log(`Imported user: ${user.name}`);
       }
       
       // Verify import
@@ -602,16 +602,16 @@ test.describe('🗄️ Database Testing Suite', () => {
       ) : [];
       
       expect(importedUsers).toHaveLength(importData.users.length);
-      console.log(`✅ Data import completed: ${importedUsers.length} users imported`);
+      console.log(`Data import completed: ${importedUsers.length} users imported`);
     });
 
   });
 
-  test.describe('🔒 Database Security Testing', () => {
+  test.describe('Database Security Testing', () => {
 
-    test('🛡️ Should prevent SQL injection attempts', async () => {
-      console.log('🎯 Testing SQL injection prevention');
-      
+    test('Should prevent SQL injection attempts', async () => {
+      console.log('Testing SQL injection prevention');
+
       // Test with malicious input
       const maliciousInput = "'; DROP TABLE users; --";
       
@@ -629,20 +629,20 @@ test.describe('🗄️ Database Testing Suite', () => {
         const users = await db.executeQuery('SELECT * FROM users');
         expect(users.length).toBeGreaterThan(0);
         
-        console.log('✅ SQL injection attempt safely handled');
+        console.log('SQL injection attempt safely handled');
         
       } catch (error) {
-        console.log('✅ SQL injection attempt blocked properly');
+        console.log('SQL injection attempt blocked properly');
       }
     });
 
-    test('🔐 Should validate access permissions', async () => {
-      console.log('🎯 Testing database access permissions');
+    test('Should validate access permissions', async () => {
+      console.log('Testing database access permissions');
       
       // Test read permissions
       const users = await db.executeQuery('SELECT * FROM users');
       expect(Array.isArray(users)).toBe(true);
-      console.log('    ✅ Read permissions validated');
+      console.log('Read permissions validated');
       
       // Test write permissions
       const result = await db.executeQuery(
@@ -650,18 +650,18 @@ test.describe('🗄️ Database Testing Suite', () => {
         ['Permission Test', 'permission@example.com', 30, 'Security']
       );
       expect(result.rowsAffected).toBe(1);
-      console.log('    ✅ Write permissions validated');
+      console.log('Write permissions validated');
       
-      console.log('✅ Database access permissions verified');
+      console.log('Database access permissions verified');
     });
 
   });
 
-  test.describe('💾 Backup and Recovery Testing', () => {
+  test.describe('Backup and Recovery Testing', () => {
 
-    test('💾 Should create database backup', async () => {
-      console.log('🎯 Testing database backup creation');
-      
+    test('Should create database backup', async () => {
+      console.log('Testing database backup creation');
+
       // Simulate backup creation
       const backupData = {
         users: await db.executeQuery('SELECT * FROM users'),
@@ -681,13 +681,13 @@ test.describe('🗄️ Database Testing Suite', () => {
       expect(backupData.metadata).toBeDefined();
       expect(backupData.metadata.tables).toHaveLength(3);
       
-      console.log(`✅ Database backup created successfully`);
-      console.log(`    📊 Backup contains: ${backupData.users.length} users, ${backupData.products.length} products, ${backupData.orders.length} orders`);
+      console.log(`Database backup created successfully`);
+      console.log(` Backup contains: ${backupData.users.length} users, ${backupData.products.length} products, ${backupData.orders.length} orders`);
     });
 
-    test('🔄 Should restore database from backup', async () => {
-      console.log('🎯 Testing database restore from backup');
-      
+    test('Should restore database from backup', async () => {
+      console.log('Testing database restore from backup');
+
       // Create initial state
       const originalUsers = await db.executeQuery('SELECT * FROM users');
       const originalCount = originalUsers.length;
@@ -698,7 +698,7 @@ test.describe('🗄️ Database Testing Suite', () => {
       // Verify data loss
       const afterDeletion = await db.executeQuery('SELECT * FROM users');
       expect(afterDeletion.length).toBe(originalCount - 1);
-      console.log('    📉 Simulated data loss');
+      console.log(' Simulated data loss');
       
       // Simulate restore (re-insert the deleted user)
       const restoredUser = originalUsers.find((u: any) => u.id === 1);
@@ -713,8 +713,8 @@ test.describe('🗄️ Database Testing Suite', () => {
       const afterRestore = await db.executeQuery('SELECT * FROM users');
       expect(afterRestore.length).toBe(originalCount);
       
-      console.log(`✅ Database restored successfully`);
-      console.log(`    📈 Restored ${afterRestore.length} user records`);
+      console.log(`Database restored successfully`);
+      console.log(`Restored ${afterRestore.length} user records`);
     });
 
   });

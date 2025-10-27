@@ -14,9 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  visual-tests-quick:
-    name: Quick Visual Tests
-    timeout-minutes: 30
+  visual-tests-comprehensive:
+    name: Comprehensive Visual Tests
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     
     steps:
@@ -35,18 +35,18 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps chromium
     
-    - name: Run quick visual tests
+    - name: Run comprehensive visual tests
       run: |
-        npx playwright test visual-testing-simple.spec.ts \
+        npx playwright test visual-testing-comprehensive.spec.ts \
           --project=chromium \
           --reporter=html,line \
-          --timeout=30000
+          --timeout=45000
     
     - name: Upload visual test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: visual-test-results-quick
+        name: visual-test-results-comprehensive
         path: |
           test-results/
           playwright-report/
@@ -81,10 +81,10 @@ jobs:
     
     - name: Run cross-browser visual tests
       run: |
-        npx playwright test visual-testing-simple.spec.ts \
+        npx playwright test visual-testing-comprehensive.spec.ts \
           --project=${{ matrix.browser }} \
           --reporter=html,junit \
-          --timeout=30000
+          --timeout=45000
       continue-on-error: true
     
     - name: Upload test results
@@ -97,8 +97,8 @@ jobs:
           playwright-report/
         retention-days: 7
 
-  visual-tests-comprehensive:
-    name: Comprehensive Visual Tests
+  visual-tests-main:
+    name: Main Visual Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[visual-full]'))
@@ -130,7 +130,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: visual-test-results-comprehensive
+        name: visual-test-results-main
         path: |
           test-results/
           playwright-report/
@@ -162,10 +162,10 @@ jobs:
     
     - name: Update visual baselines
       run: |
-        npx playwright test visual-testing-simple.spec.ts \
+        npx playwright test visual-testing-comprehensive.spec.ts \
           --project=chromium \
           --update-snapshots \
-          --timeout=30000
+          --timeout=45000
     
     - name: Commit updated baselines
       run: |
@@ -221,7 +221,7 @@ jobs:
 
   deploy-visual-report:
     name: Deploy Visual Test Report
-    needs: [visual-tests-quick, visual-tests-cross-browser, accessibility-tests]
+    needs: [visual-tests-main, visual-tests-cross-browser, accessibility-tests]
     runs-on: ubuntu-latest
     if: always() && github.ref == 'refs/heads/main'
     
@@ -256,7 +256,8 @@ jobs:
         <body>
             <h1>Visual & Accessibility Test Results</h1>
             <p>Generated on: $(date)</p>
-            <a href="visual-test-results-quick/index.html" class="report-link">📸 Quick Visual Tests</a>
+            <a href="visual-test-results-main/index.html" class="report-link">📸 Comprehensive Visual Tests</a>
+            <a href="visual-test-results-cross-browser/index.html" class="report-link">🌐 Cross-Browser Visual Tests</a>
             <a href="accessibility-test-results/index.html" class="report-link">♿ Accessibility Tests</a>
             <a href="https://github.com/${{ github.repository }}" class="report-link">🔗 Back to Repository</a>
         </body>
