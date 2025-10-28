@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('🎨 Comprehensive Visual Testing Suite', () => {
+test.describe(' Comprehensive Visual Testing Suite', () => {
   
   test.beforeEach(async ({ page }) => {
     // Set consistent settings for visual testing
@@ -19,10 +19,10 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
     });
   });
 
-  test.describe('📸 Screenshot Testing', () => {
+  test.describe(' Screenshot Testing', () => {
     
     test('Should capture full page visual baseline', async ({ page }) => {
-      console.log('🔧 Setting up full page screenshot test...');
+      console.log(' Setting up full page screenshot test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -33,7 +33,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         return images.every(img => img.complete && img.naturalHeight !== 0);
       });
       
-      console.log('📸 Capturing full page screenshot...');
+      console.log(' Capturing full page screenshot...');
       
       // Take full page screenshot for visual comparison
       await expect(page).toHaveScreenshot('homepage-full.png', {
@@ -42,16 +42,16 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         threshold: 0.2 // Allow 20% visual difference
       });
       
-      console.log('✅ Full page screenshot captured successfully');
+      console.log(' Full page screenshot captured successfully');
     });
 
     test('Should capture viewport screenshot', async ({ page }) => {
-      console.log('🔧 Setting up viewport screenshot test...');
+      console.log(' Setting up viewport screenshot test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
       
-      console.log('📸 Capturing viewport screenshot...');
+      console.log(' Capturing viewport screenshot...');
       
       // Capture only the visible viewport
       await expect(page).toHaveScreenshot('homepage-viewport.png', {
@@ -59,11 +59,11 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         animations: 'disabled'
       });
       
-      console.log('✅ Viewport screenshot captured successfully');
+      console.log(' Viewport screenshot captured successfully');
     });
 
     test('Should capture element-specific screenshots', async ({ page }) => {
-      console.log('🔧 Setting up element screenshot test...');
+      console.log(' Setting up element screenshot test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -71,29 +71,29 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       // Screenshot navigation element specifically
       const navigation = page.locator('nav').first();
       if (await navigation.count() > 0) {
-        console.log('📸 Capturing navigation element screenshot...');
+        console.log(' Capturing navigation element screenshot...');
         await expect(navigation).toHaveScreenshot('navigation-element.png');
       }
       
       // Screenshot header element specifically  
       const header = page.locator('header').first();
       if (await header.count() > 0) {
-        console.log('📸 Capturing header element screenshot...');
+        console.log(' Capturing header element screenshot...');
         await expect(header).toHaveScreenshot('header-element.png');
       }
       
       // Screenshot hero section
       const heroSection = page.locator('.hero').first();
       if (await heroSection.count() > 0) {
-        console.log('📸 Capturing hero section screenshot...');
+        console.log(' Capturing hero section screenshot...');
         await expect(heroSection).toHaveScreenshot('hero-section.png');
       }
       
-      console.log('✅ Element screenshots captured successfully');
+      console.log(' Element screenshots captured successfully');
     });
   });
 
-  test.describe('📱 Responsive Visual Testing', () => {
+  test.describe(' Responsive Visual Testing', () => {
     
     const devices = [
       { name: 'Mobile Portrait', width: 375, height: 667 },
@@ -106,7 +106,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
 
     for (const device of devices) {
       test(`Should render correctly on ${device.name} (${device.width}x${device.height})`, async ({ page }) => {
-        console.log(`🔧 Setting up ${device.name} test...`);
+        console.log(` Setting up ${device.name} test...`);
         
         await page.setViewportSize({ width: device.width, height: device.height });
         await page.goto('https://playwright.dev/');
@@ -115,7 +115,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         // Wait for responsive layout adjustments
         await page.waitForTimeout(500);
         
-        console.log(`📸 Capturing ${device.name} screenshot...`);
+        console.log(` Capturing ${device.name} screenshot...`);
         
         // Capture screenshot for this device size
         await expect(page).toHaveScreenshot(`${device.name.toLowerCase().replace(/\s+/g, '-')}.png`, {
@@ -130,15 +130,15 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
           expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 20); // Allow small tolerance
         }
         
-        console.log(`✅ ${device.name} test completed successfully`);
+        console.log(` ${device.name} test completed successfully`);
       });
     }
   });
 
-  test.describe('🌈 Theme and Color Testing', () => {
+  test.describe(' Theme and Color Testing', () => {
     
     test('Should test light theme visual appearance', async ({ page }) => {
-      console.log('🔧 Setting up light theme test...');
+      console.log(' Setting up light theme test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -147,18 +147,18 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       await page.emulateMedia({ colorScheme: 'light' });
       await page.waitForTimeout(500);
       
-      console.log('🌞 Testing light theme appearance...');
+      console.log(' Testing light theme appearance...');
       
       // Take screenshot in light mode
       await expect(page).toHaveScreenshot('homepage-light-theme.png', {
         animations: 'disabled'
       });
       
-      console.log('✅ Light theme test completed');
+      console.log(' Light theme test completed');
     });
 
     test('Should test dark theme visual appearance', async ({ page }) => {
-      console.log('🔧 Setting up dark theme test...');
+      console.log(' Setting up dark theme test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -167,21 +167,21 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       await page.emulateMedia({ colorScheme: 'dark' });
       await page.waitForTimeout(500);
       
-      console.log('🌙 Testing dark theme appearance...');
+      console.log(' Testing dark theme appearance...');
       
       // Take screenshot in dark mode
       await expect(page).toHaveScreenshot('homepage-dark-theme.png', {
         animations: 'disabled'
       });
       
-      console.log('✅ Dark theme test completed');
+      console.log(' Dark theme test completed');
     });
   });
 
-  test.describe('🎭 Interactive State Testing', () => {
+  test.describe(' Interactive State Testing', () => {
     
     test('Should capture hover states', async ({ page }) => {
-      console.log('🔧 Setting up hover state test...');
+      console.log(' Setting up hover state test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -192,7 +192,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       if (await buttons.count() > 0) {
         await buttons.scrollIntoViewIfNeeded();
         
-        console.log('🖱️ Testing hover state...');
+        console.log(' Testing hover state...');
         
         // Hover over the element
         await buttons.hover();
@@ -201,14 +201,14 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         // Capture hover state
         await expect(buttons).toHaveScreenshot('button-hover-state.png');
         
-        console.log('✅ Hover state captured successfully');
+        console.log(' Hover state captured successfully');
       } else {
-        console.log('ℹ️ No visible interactive elements found for hover testing');
+        console.log('No visible interactive elements found for hover testing');
       }
     });
 
     test('Should capture focus states', async ({ page }) => {
-      console.log('🔧 Setting up focus state test...');
+      console.log(' Setting up focus state test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -221,7 +221,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         const firstElement = focusableElements.first();
         await firstElement.scrollIntoViewIfNeeded();
         
-        console.log('⌨️ Testing focus state...');
+        console.log('Testing focus state...');
         
         // Focus the element
         await firstElement.focus();
@@ -230,12 +230,12 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         // Capture focus state
         await expect(firstElement).toHaveScreenshot('element-focus-state.png');
         
-        console.log('✅ Focus state captured successfully');
+        console.log(' Focus state captured successfully');
       }
     });
 
     test('Should capture form interaction states', async ({ page }) => {
-      console.log('🔧 Setting up form interaction test...');
+      console.log(' Setting up form interaction test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -247,7 +247,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         const input = searchInput.first();
         await input.scrollIntoViewIfNeeded();
         
-        console.log('📝 Testing form interaction states...');
+        console.log(' Testing form interaction states...');
         
         // Empty state
         await expect(input).toHaveScreenshot('form-input-empty.png');
@@ -262,15 +262,15 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         await page.waitForTimeout(200);
         await expect(input).toHaveScreenshot('form-input-filled.png');
         
-        console.log('✅ Form interaction states captured successfully');
+        console.log(' Form interaction states captured successfully');
       }
     });
   });
 
-  test.describe('📊 Layout and Component Testing', () => {
+  test.describe(' Layout and Component Testing', () => {
     
     test('Should verify navigation layout consistency', async ({ page }) => {
-      console.log('🔧 Setting up navigation layout test...');
+      console.log(' Setting up navigation layout test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -278,7 +278,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       const navigation = page.locator('nav, .navbar, [role="navigation"]');
       
       if (await navigation.count() > 0) {
-        console.log('🧭 Testing navigation layout...');
+        console.log(' Testing navigation layout...');
         
         // Capture navigation component
         await expect(navigation.first()).toHaveScreenshot('navigation-component.png');
@@ -296,12 +296,12 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
           }
         }
         
-        console.log('✅ Navigation layout test completed');
+        console.log(' Navigation layout test completed');
       }
     });
 
     test('Should verify footer layout consistency', async ({ page }) => {
-      console.log('🔧 Setting up footer layout test...');
+      console.log(' Setting up footer layout test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -309,7 +309,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       const footer = page.locator('footer, [role="contentinfo"]');
       
       if (await footer.count() > 0) {
-        console.log('🦶 Testing footer layout...');
+        console.log(' Testing footer layout...');
         
         // Scroll to footer
         await footer.first().scrollIntoViewIfNeeded();
@@ -318,12 +318,12 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         // Capture footer component
         await expect(footer.first()).toHaveScreenshot('footer-component.png');
         
-        console.log('✅ Footer layout test completed');
+        console.log(' Footer layout test completed');
       }
     });
 
     test('Should verify card/content grid layouts', async ({ page }) => {
-      console.log('🔧 Setting up grid layout test...');
+      console.log(' Setting up grid layout test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -332,7 +332,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       const gridContainers = page.locator('.grid, .cards, [class*="grid"], [class*="card"]').first();
       
       if (await gridContainers.count() > 0) {
-        console.log('🃏 Testing grid/card layouts...');
+        console.log(' Testing grid/card layouts...');
         
         await gridContainers.scrollIntoViewIfNeeded();
         await page.waitForTimeout(300);
@@ -340,15 +340,15 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         // Capture grid layout
         await expect(gridContainers).toHaveScreenshot('grid-layout.png');
         
-        console.log('✅ Grid layout test completed');
+        console.log(' Grid layout test completed');
       }
     });
   });
 
-  test.describe('🖼️ Image and Media Testing', () => {
+  test.describe(' Image and Media Testing', () => {
     
     test('Should verify image loading and display', async ({ page }) => {
-      console.log('🔧 Setting up image loading test...');
+      console.log(' Setting up image loading test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -359,12 +359,12 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         return images.every(img => img.complete && img.naturalHeight !== 0);
       });
       
-      console.log('🖼️ Testing image display...');
+      console.log(' Testing image display...');
       
       const images = page.locator('img');
       const imageCount = await images.count();
       
-      console.log(`📊 Found ${imageCount} images to validate`);
+      console.log(` Found ${imageCount} images to validate`);
       
       // Test first few images
       for (let i = 0; i < Math.min(imageCount, 3); i++) {
@@ -381,23 +381,23 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         }
       }
       
-      console.log('✅ Image loading test completed');
+      console.log(' Image loading test completed');
     });
 
     test('Should test image lazy loading behavior', async ({ page }) => {
-      console.log('🔧 Setting up lazy loading test...');
+      console.log(' Setting up lazy loading test...');
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
       
-      console.log('🦥 Testing lazy loading behavior...');
+      console.log(' Testing lazy loading behavior...');
       
       // Find images with lazy loading
       const lazyImages = page.locator('img[loading="lazy"]');
       const lazyCount = await lazyImages.count();
       
       if (lazyCount > 0) {
-        console.log(`📊 Found ${lazyCount} lazy-loaded images`);
+        console.log(` Found ${lazyCount} lazy-loaded images`);
         
         // Scroll to trigger lazy loading
         await page.evaluate(() => {
@@ -413,17 +413,17 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
           await expect(img).toBeVisible();
         }
         
-        console.log('✅ Lazy loading test completed');
+        console.log(' Lazy loading test completed');
       } else {
-        console.log('ℹ️ No lazy-loaded images found');
+        console.log('No lazy-loaded images found');
       }
     });
   });
 
-  test.describe('🎯 Cross-Browser Visual Consistency', () => {
+  test.describe(' Cross-Browser Visual Consistency', () => {
     
     test('Should maintain visual consistency across browsers', async ({ page, browserName }) => {
-      console.log(`🔧 Setting up cross-browser test for ${browserName}...`);
+      console.log(` Setting up cross-browser test for ${browserName}...`);
       
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
@@ -431,7 +431,7 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
       // Wait for fonts to load
       await page.waitForFunction(() => document.fonts.ready);
       
-      console.log(`🌐 Testing visual consistency on ${browserName}...`);
+      console.log(` Testing visual consistency on ${browserName}...`);
       
       // Capture browser-specific screenshot
       await expect(page).toHaveScreenshot(`homepage-${browserName}.png`, {
@@ -449,14 +449,14 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
         expect(fontSize).toBeTruthy();
       }
       
-      console.log(`✅ ${browserName} visual consistency test completed`);
+      console.log(` ${browserName} visual consistency test completed`);
     });
   });
 
-  test.describe('⚡ Performance Visual Testing', () => {
+  test.describe(' Performance Visual Testing', () => {
     
     test('Should capture loading states and transitions', async ({ page }) => {
-      console.log('🔧 Setting up loading state test...');
+      console.log(' Setting up loading state test...');
       
       // Capture loading state
       const responsePromise = page.waitForResponse('**/*');
@@ -470,26 +470,26 @@ test.describe('🎨 Comprehensive Visual Testing Suite', () => {
           timeout: 2000
         });
       } catch (error) {
-        console.log('ℹ️ Loading state too fast to capture');
+        console.log('Loading state too fast to capture');
       }
       
       await responsePromise;
       await page.waitForLoadState('networkidle');
       
-      console.log('🎯 Capturing loaded state...');
+      console.log(' Capturing loaded state...');
       
       // Take screenshot of fully loaded page
       await expect(page).toHaveScreenshot('loaded-state.png');
       
-      console.log('✅ Loading state test completed');
+      console.log(' Loading state test completed');
     });
   });
 });
 
-test.describe('🛠️ Visual Testing Utilities', () => {
+test.describe(' Visual Testing Utilities', () => {
   
   test('Should provide visual debugging information', async ({ page }) => {
-    console.log('🔧 Setting up visual debugging...');
+    console.log(' Setting up visual debugging...');
     
     await page.goto('https://playwright.dev/');
     await page.waitForLoadState('networkidle');
@@ -509,7 +509,7 @@ test.describe('🛠️ Visual Testing Utilities', () => {
       };
     });
     
-    console.log('📊 Visual debugging information:');
+    console.log(' Visual debugging information:');
     console.log(`   Viewport: ${viewportInfo.viewport.width}x${viewportInfo.viewport.height}`);
     console.log(`   Document: ${viewportInfo.document.width}x${viewportInfo.document.height}`);
     console.log(`   Device Pixel Ratio: ${viewportInfo.devicePixelRatio}`);
@@ -538,13 +538,13 @@ test.describe('🛠️ Visual Testing Utilities', () => {
     });
     
     if (potentialIssues.length > 0) {
-      console.log('⚠️ Potential visual testing issues:');
+      console.log(' Potential visual testing issues:');
       potentialIssues.forEach(issue => console.log(`   - ${issue}`));
     }
     
     expect(viewportInfo.viewport.width).toBeGreaterThan(0);
     expect(viewportInfo.viewport.height).toBeGreaterThan(0);
     
-    console.log('✅ Visual debugging completed');
+    console.log(' Visual debugging completed');
   });
 });

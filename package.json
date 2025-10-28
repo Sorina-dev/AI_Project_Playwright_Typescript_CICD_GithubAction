@@ -19,6 +19,12 @@
     "test:visual-comprehensive": "playwright test visual-testing-comprehensive.spec.ts --project=chromium",
     "test:visual-update": "playwright test visual-testing-simple.spec.ts --update-snapshots --project=chromium",
     "test:visual-cross-browser": "playwright test visual-testing-simple.spec.ts --project=chromium --project=firefox --project=webkit",
+    "test:bdd": "cucumber-js features/*.feature --require-module ts-node/register --require features/step-definitions/**/*.ts",
+    "test:bdd-navigation": "cucumber-js features/navigation.feature --require-module ts-node/register --require features/step-definitions/**/*.ts",
+    "test:bdd-search": "cucumber-js features/search.feature --require-module ts-node/register --require features/step-definitions/**/*.ts",
+    "test:bdd-responsive": "cucumber-js features/responsive.feature --require-module ts-node/register --require features/step-definitions/**/*.ts",
+    "test:bdd-html": "cucumber-js --format html:test-results/cucumber-report.html",
+    "test:bdd-json": "cucumber-js --format json:test-results/cucumber-report.json",
     "report": "playwright show-report",
     "install:browsers": "playwright install",
     "codegen": "playwright codegen"
@@ -42,8 +48,12 @@
   },
   "homepage": "https://github.com/your-github-username/playwright-typescript-project#readme",
   "devDependencies": {
+    "@cucumber/cucumber": "^7.3.2",
+    "@cucumber/playwright": "^3.1.0",
     "@playwright/test": "^1.55.1",
     "@types/node": "^20.8.0",
+    "playwright-bdd": "^8.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.0"
   },
   "engines": {

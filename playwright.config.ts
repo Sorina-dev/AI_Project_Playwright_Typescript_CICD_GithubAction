@@ -35,7 +35,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     //baseURL: 'https://valentinos-magic-beans.click/',
     //baseURL: 'https://api.valentinos-magic-beans.click',
-    headless: true,
+    headless: false,
     trace: 'on-first-retry',
 
     /* Take screenshot only when test fails */
