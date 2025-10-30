@@ -1,6 +1,18 @@
 # BDD Testing with Cucumber and Playwright
 
 This project includes proper BDD (Behavior-Driven Development) testing using Cucumber with Gherkin syntax and Playwright for automation.
+Video recording can be checke din HTML report or in test-result folder itself from Explorer
+
+# Flow for creating tests from existing framework:
+* take into consideration Pages already created or create others
+* Given - is the step repeated for all scenarios in a feature file
+* THEN can also be an AND
+* look at existing Features and steps
+* No duplicates allowed in same feature and steps file
+* Before running in terminal add the test to the script and how it will be called in package.json file:
+example:
+ "test:bdd-exampleAsBDD": "cucumber-js features/exampleAsBDD.feature --require-module ts-node/register --require features/step-definitions/**/*.ts --format progress-bar --format html:test-results/cucumber-report.html"
+
 
 ## 📁 Project Files & Configuration Explained
 
@@ -81,11 +93,13 @@ npx cucumber-js features/navigation.feature:9 --require-module ts-node/register 
 # Run by tags
 npx cucumber-js --tags "@homepage" --require-module ts-node/register --require features/step-definitions/**/*.ts
 
-# Generate HTML report
-npm run test:bdd-html
+# Generate HTML report   Standard Cucumber HTML report
+npm run report:bdd   #after it was generated in established placed, for me test-results/cucumber-report.html
 
-# Generate JSON report  
-npm run test:bdd-json
+# For checking videos - copy path from HTML report and use these commands:
+# Examples:
+# From project root:
+Invoke-Item "test-results\videos\2025-10-29T15-30-53-270Z_User_searches_for_content\video-player.html"
 ```
 
 ### **🎯 Test Results (All Passing)**
@@ -179,9 +193,44 @@ Then('they should be redirected to the dashboard', async function() {
 
 ## Reports
 
-Test reports are generated in the `test-results/` directory:
-- `cucumber-report.html` - HTML report
+Test reports and evidence are generated in the `test-results/` directory:
+
+### **📊 HTML Reports**
+- `cucumber-report.html` - Standard Cucumber HTML report
+- `enhanced-report.html` - Enhanced visual report with screenshot integration
 - `cucumber-report.json` - JSON report for CI/CD integration
+
+### **📸 Visual Evidence (Timestamp-based naming)**
+All screenshots and videos use timestamp-based naming for easy organization:
+
+**Screenshots:**
+- `{timestamp}_{scenario_name}_start.png` - Initial screenshot
+- `{timestamp}_{scenario_name}_end.png` - Final screenshot  
+- `{timestamp}_{scenario_name}_FAILURE_{timestamp}.png` - Failure evidence
+
+**Videos:**
+- `videos/{timestamp}_{scenario_name}/` - Video recordings directory
+- Each scenario gets its own timestamped folder
+
+**Example naming:**
+```
+test-results/
+├── screenshots/
+│   ├── 2025-10-29T14-30-15-123Z_User_visits_the_homepage_start.png
+│   └── 2025-10-29T14-30-15-123Z_User_visits_the_homepage_end.png
+└── videos/
+    └── 2025-10-29T14-30-15-123Z_User_visits_the_homepage/
+        └── video.webm
+```
+
+### **🚀 View Reports**
+```bash
+# View standard Cucumber report
+npm run report:bdd
+
+# View enhanced visual report  
+npm run report:enhanced
+```
 
 ## Benefits of BDD
 
