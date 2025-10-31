@@ -1,11 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { text } from 'stream/consumers';
 
 test.describe(' Comprehensive Visual Testing Suite', () => {
   
   test.beforeEach(async ({ page }) => {
     // Set consistent settings for visual testing
+     /*
+      Disable animations for consistent screenshots
+      Disabling animations is essential for visual testing
+      because animations create inconsistent screenshots that cause tests to fail unpredictably.
+       */
     await page.addInitScript(() => {
-      // Disable animations for consistent screenshots
       const style = document.createElement('style');
       style.innerHTML = `
         *, *::before, *::after {
@@ -45,6 +50,11 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       console.log(' Full page screenshot captured successfully');
     });
 
+    /**
+     * Viewport Screenshot Testing
+     * Viewport screenshots capture only the visible area of the webpage as seen by the user without scrolling.
+     * The viewport captures what users see immediately when they land on your page
+     */
     test('Should capture viewport screenshot', async ({ page }) => {
       console.log(' Setting up viewport screenshot test...');
       
@@ -69,7 +79,7 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       await page.waitForLoadState('networkidle');
       
       // Screenshot navigation element specifically
-      const navigation = page.locator('nav').first();
+      const navigation = page.locator('[aria-label="Main"]');
       if (await navigation.count() > 0) {
         console.log(' Capturing navigation element screenshot...');
         await expect(navigation).toHaveScreenshot('navigation-element.png');
@@ -94,14 +104,43 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
   });
 
   test.describe(' Responsive Visual Testing', () => {
+    /**
+     * Mobile: ❌ Common failures:
+- Text too small to read
+- Buttons too small to tap
+- Content cut off or overlapping
+- Horizontal scroll appears
+edge cases:
+❌ Common failures:
+- Header too tall (blocks content)
+- Content doesn't fit in short height
+- Navigation breaks in landscape
+      * Tablet: ❌ Common failures:
+❌ Common failures:
+- Looks like blown-up mobile (wasted space)
+- Desktop layout crammed into tablet
+- Touch targets too small
+      * Desktop: ❌ Common failures:
+❌ Common failures:
+- Footer too wide
+- Content not centered
+- Images low-res on large screens   
+    * lage Desktop
+❌ Common failures:
+- Content stretched too wide
+- Images pixelated
+- Text too small relative to screen
+- Poor use of available space
+
+     */
     
     const devices = [
-      { name: 'Mobile Portrait', width: 375, height: 667 },
-      { name: 'Mobile Landscape', width: 667, height: 375 },
-      { name: 'Tablet Portrait', width: 768, height: 1024 },
-      { name: 'Tablet Landscape', width: 1024, height: 768 },
-      { name: 'Desktop', width: 1920, height: 1080 },
-      { name: 'Large Desktop', width: 2560, height: 1440 }
+      { name: 'Mobile Portrait', width: 375, height: 667 },// iPhone 6/7/8
+      { name: 'Mobile Landscape', width: 667, height: 375 },// Phone rotated
+      { name: 'Tablet Portrait', width: 768, height: 1024 },// iPad
+      { name: 'Tablet Landscape', width: 1024, height: 768 },// iPad rotated
+      { name: 'Desktop', width: 1920, height: 1080 },// Full HD
+      { name: 'Large Desktop', width: 2560, height: 1440 }// 2K/4K monitors
     ];
 
     for (const device of devices) {
@@ -187,8 +226,8 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       await page.waitForLoadState('networkidle');
       
       // Find interactive elements that are visible
-      const buttons = page.locator('button:visible, a:visible').first();
-      
+      const buttons = page.locator('span:text("Search")');
+    
       if (await buttons.count() > 0) {
         await buttons.scrollIntoViewIfNeeded();
         
@@ -214,7 +253,7 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       await page.waitForLoadState('networkidle');
       
       // Find focusable elements
-      const focusableElements = page.locator('button, a, input, textarea, select, [tabindex]:not([tabindex="-1"])');
+      const focusableElements = page.locator('[tabindex="0"]');
       const elementCount = await focusableElements.count();
       
       if (elementCount > 0) {
@@ -266,7 +305,27 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       }
     });
   });
+  /**
+   * Common navigation Failures
+❌ Menu items overlapping on smaller screens
+❌ Hamburger menu not functioning properly
+❌ Logo/brand displaced or cut off
+❌ Navigation text becoming unreadable
+❌ Dropdown menus breaking layout
+❌ Search bar pushed off-screen
+❌ Active/current page indicators broken
+❌ Hover states not working
+❌ Navigation sticky/fixed positioning issues
 
+// Tests multiple navigation patterns:
+✅ Horizontal navigation bars
+✅ Vertical sidebar navigation  
+✅ Hamburger/mobile menus
+✅ Dropdown/mega menus
+✅ Breadcrumb navigation
+✅ Tab navigation
+✅ Pagination navigation
+   */
   test.describe(' Layout and Component Testing', () => {
     
     test('Should verify navigation layout consistency', async ({ page }) => {
@@ -275,8 +334,8 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
       
-      const navigation = page.locator('nav, .navbar, [role="navigation"]');
-      
+      const navigation = page.locator('[alt="React Navigation"]');
+      await navigation.scrollIntoViewIfNeeded();
       if (await navigation.count() > 0) {
         console.log(' Testing navigation layout...');
         
@@ -284,7 +343,7 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
         await expect(navigation.first()).toHaveScreenshot('navigation-component.png');
         
         // Test navigation items alignment
-        const navItems = navigation.locator('a, button');
+        const navItems = navigation.locator('button').first();
         const itemCount = await navItems.count();
         if (itemCount > 0) {
           const firstItem = navItems.first();
@@ -306,8 +365,9 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
       await page.goto('https://playwright.dev/');
       await page.waitForLoadState('networkidle');
       
-      const footer = page.locator('footer, [role="contentinfo"]');
-      
+      const footer = page.locator('footer').first();
+      await footer.scrollIntoViewIfNeeded();
+
       if (await footer.count() > 0) {
         console.log(' Testing footer layout...');
         

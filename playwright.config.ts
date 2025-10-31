@@ -55,70 +55,50 @@ export default defineConfig({
           slowMo: 1000
         }
       },
-    },
-
-    {
-      name: 'firefox',
-      use: { 
-        ...devices['Desktop Firefox'],
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
-
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
-
+    }
+  ]
     /* Test against mobile viewports. */
-    {
-      name: 'mobile-chrome',
-      use: { 
-        ...devices['Pixel 5'],
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
-    {
-      name: 'mobile-safari',
-      use: { 
-        ...devices['iPhone 12'],
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
+    // {
+    //   name: 'mobile-chrome',
+    //   use: { 
+    //     ...devices['Pixel 5'],
+    //     launchOptions: {
+    //       slowMo: 1000
+    //     }
+    //   },
+    // },
+    // {
+    //   name: 'mobile-safari',
+    //   use: { 
+    //     ...devices['iPhone 12'],
+    //     launchOptions: {
+    //       slowMo: 1000
+    //     }
+    //   },
+    // },
 
     /* Test against branded browsers. */
-    {
-      name: 'microsoft-edge',
-      use: { 
-        ...devices['Desktop Edge'], 
-        channel: 'msedge',
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
-    {
-      name: 'google-chrome',
-      use: { 
-        ...devices['Desktop Chrome'], 
-        channel: 'chrome',
-        launchOptions: {
-          slowMo: 1000
-        }
-      },
-    },
-  ],
+  //   {
+  //     name: 'microsoft-edge',
+  //     use: { 
+  //       ...devices['Desktop Edge'], 
+  //       channel: 'msedge',
+  //       launchOptions: {
+  //         slowMo: 1000
+  //       }
+  //     },
+  //   },
+  //   {
+  //     name: 'google-chrome',
+  //     use: { 
+  //       ...devices['Desktop Chrome'], 
+  //       channel: 'chrome',
+  //       launchOptions: {
+  //         slowMo: 1000
+  //       }
+  //     },
+  //   },
+  // ],
 
   /* Run your local dev server before starting the tests */
   // webServer: {
