@@ -1,5 +1,5 @@
 name: Playwright Tests
-
+# for tested visual regression testing pipeline
 on:
   push:
     branches: [ main, master ]
@@ -39,6 +39,11 @@ jobs:
     
     - name: Run Playwright tests
       run: npx playwright test --project=${{ matrix.browser }}
+      env:
+        CI: true
+    
+    - name: Run Visual Tests
+      run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
       env:
         CI: true
     

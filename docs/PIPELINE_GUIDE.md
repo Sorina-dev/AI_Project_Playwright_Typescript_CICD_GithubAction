@@ -91,17 +91,28 @@ Installs exact versions from `package-lock.json` (faster than `npm install`).
 ```
 Installs the specific browser from matrix strategy + system dependencies.
 
-#### Step 5: Run Tests
+#### Step 5: Run Playwright Tests
 ```yaml
 - name: Run Playwright tests
   run: npx playwright test --project=${{ matrix.browser }}
   env:
     CI: true
 ```
-- Runs tests for the specific browser project
+- Runs all standard Playwright tests (functional, API, forms, POM demos)
 - `CI: true` enables CI-specific configurations from your `playwright.config.ts`
 
-#### Step 6: Upload Results
+#### Step 6: Run Visual Tests
+```yaml
+- name: Run Visual Tests
+  run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
+  env:
+    CI: true
+```
+- Runs comprehensive visual regression testing
+- Includes responsive testing, screenshot comparisons, theme testing
+- Cross-browser visual consistency validation
+
+#### Step 7: Upload Results
 ```yaml
 - name: Upload test results
   uses: actions/upload-artifact@v4
@@ -114,6 +125,7 @@ Installs the specific browser from matrix strategy + system dependencies.
     retention-days: 30
 ```
 - Uploads test reports and results as artifacts
+- Includes visual test results and screenshots
 - `if: always()` ensures upload even if tests fail
 - Keeps artifacts for 30 days
 
@@ -192,11 +204,14 @@ Downloads all test reports from both jobs.
 ## 🎯 Current Configuration Analysis
 
 ### **✅ Strengths:**
-1. **Comprehensive Coverage**: Desktop + Mobile testing
-2. **Artifact Management**: Saves reports for debugging
-3. **Automatic Deployment**: HTML reports published to GitHub Pages
-4. **Efficient**: Uses caching and CI optimizations
-5. **Fail-Safe**: Continues execution even if some tests fail
+1. **Comprehensive Coverage**: Desktop + Mobile + Visual testing
+2. **Unified Pipeline**: All test types in one workflow
+3. **Visual Regression Testing**: Automated screenshot comparisons
+4. **Responsive Testing**: Multiple device breakpoints tested
+5. **Artifact Management**: Saves reports for debugging
+6. **Automatic Deployment**: HTML reports published to GitHub Pages
+7. **Efficient**: Uses caching and CI optimizations
+8. **Fail-Safe**: Continues execution even if some tests fail
 
 ### **🔧 Potential Improvements:**
 
@@ -255,8 +270,18 @@ steps:
 ```bash
 # Test what CI will run
 npm ci
+
+# Run standard tests
 npx playwright test --project=chromium
-npx playwright test --project=mobile-chrome --project=mobile-safari
+
+# Run visual tests
+npx playwright test visual-testing-comprehensive.spec.ts --project=chromium
+
+# Run mobile tests
+npx playwright test --project=mobile-chrome
+
+# Run responsive visual tests specifically
+npx playwright test visual-testing-comprehensive.spec.ts --grep "Responsive Visual Testing" --project=chromium
 ```
 
 ---
@@ -277,7 +302,9 @@ Consider adding these npm scripts:
   "scripts": {
     "test:ci": "playwright test",
     "test:desktop": "playwright test --project=chromium",
-    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:mobile": "playwright test --project=mobile-chrome",
+    "test:visual": "playwright test visual-testing-comprehensive.spec.ts --project=chromium",
+    "test:visual-responsive": "playwright test visual-testing-comprehensive.spec.ts --grep \"Responsive Visual Testing\" --project=chromium",
     "test:report": "playwright show-report"
   }
 }
@@ -302,45 +329,57 @@ Consider adding these npm scripts:
 
 ## 🎉 Summary
 
-Your pipeline provides:
-- ✅ **Automated Testing** on every push/PR
-- ✅ **Cross-Browser Coverage** (desktop + mobile)
-- ✅ **Visual Reports** published automatically
-- ✅ **Artifact Storage** for debugging
-- ✅ **Fail-Safe Execution** with proper error handling
+Your unified pipeline provides:
+- ✅ **Functional Testing** - Standard Playwright tests (forms, API, POM demos)
+- ✅ **Visual Regression Testing** - Comprehensive screenshot comparisons
+- ✅ **Responsive Testing** - Multiple device breakpoints (mobile, tablet, desktop)
+- ✅ **Cross-Browser Testing** - Desktop + Mobile browser coverage
+- ✅ **Automated Deployment** - HTML reports published to GitHub Pages
+- ✅ **Artifact Storage** - Test results and visual snapshots for debugging
+- ✅ **Fail-Safe Execution** - Continues even if some tests fail
 
-The pipeline is well-structured and production-ready for your Playwright TypeScript project with POM architecture!
+### **Test Types Included:**
+1. **Standard Tests**: Forms, navigation, POM demos, API tests
+2. **Visual Tests**: Screenshot comparisons, theme testing, hover states
+3. **Responsive Tests**: 6 device breakpoints (375px to 2560px)
+4. **Mobile Tests**: Touch interactions, mobile navigation
+
+The pipeline is production-ready and provides comprehensive test coverage for your Playwright TypeScript project!
 
 ------------------
-🏗️ Your Pipeline Architecture:
-3 Jobs Running in Sequence:
-test Job - Desktop browser testing (currently Chromium only)
-test-mobile Job - Mobile device testing (Chrome + Safari mobile) uncomented safari
-deploy-report Job - Publishes HTML reports to GitHub Pages
-🎯 Key Features:
-✅ Automatic Triggers: Runs on push/PR to main/master
-✅ Cross-Platform Testing: Desktop + Mobile coverage
-✅ Smart Concurrency: Cancels previous runs on new commits
-✅ Artifact Management: Saves test reports for 30 days
-✅ GitHub Pages: Auto-publishes HTML reports
-✅ Fail-Safe: Continues even if some tests fail
+🏗️ **Your Updated Pipeline Architecture:**
 
-🔧 Current Configuration:
-OS: Ubuntu Latest
-Node.js: Version 20 with npm caching
-Browsers: Chromium (desktop) + Chromium/Webkit (mobile)
-Timeout: 60 minutes per job
-Test Directory: test (recently fixed)
-📊 Test Coverage:
-Desktop: Chromium browser project
-Mobile: Pixel 5 (Chrome) + iPhone 12 (Safari) simulation
-🚀 How It Works:
-Code Push → Triggers pipeline
-Parallel Execution → Desktop & Mobile tests run simultaneously
-Artifact Collection → Saves reports and screenshots
-Report Deployment → Publishes to GitHub Pages (main branch only)
-📱 Mobile Testing Details:
-Your pipeline specifically tests these mobile configurations from your playwright.config.ts:
+**Single Unified Pipeline** with 3 Jobs Running in Sequence:
+1. **test Job** - Desktop testing (Functional + Visual tests on Chromium)
+2. **test-mobile Job** - Mobile device testing (Chrome mobile simulation)
+3. **deploy-report Job** - Publishes HTML reports to GitHub Pages
 
-mobile-chrome using Pixel 5 device simulation
-mobile-safari using iPhone 12 device simulation
+🎯 **Key Features:**
+✅ **Unified Workflow**: All test types in one pipeline
+✅ **Automatic Triggers**: Runs on push/PR to main/master  
+✅ **Comprehensive Testing**: Functional + Visual + Mobile coverage
+✅ **Visual Regression**: Screenshot comparisons and responsive testing
+✅ **Smart Concurrency**: Cancels previous runs on new commits
+✅ **Artifact Management**: Saves test reports + visual snapshots for 30 days
+✅ **GitHub Pages**: Auto-publishes HTML reports
+✅ **Fail-Safe**: Continues even if some tests fail
+
+🔧 **Current Configuration:**
+- **OS**: Ubuntu Latest
+- **Node.js**: Version 20 with npm caching
+- **Browsers**: Chromium (desktop) + Chromium (mobile)
+- **Timeout**: 60 minutes per job
+- **Test Directory**: `./test`
+
+📊 **Test Coverage:**
+- **Functional Tests**: Forms, navigation, API, POM demos
+- **Visual Tests**: Screenshots, themes, responsive breakpoints
+- **Desktop**: Chromium browser project
+- **Mobile**: Pixel 5 (Chrome) simulation
+
+🚀 **How It Works:**
+1. **Code Push** → Triggers pipeline
+2. **Parallel Execution** → Desktop & Mobile tests run simultaneously  
+3. **Visual Validation** → Screenshot comparisons and responsive testing
+4. **Artifact Collection** → Saves reports, screenshots, and test results
+5. **Report Deployment** → Publishes to GitHub Pages (main branch only)
