@@ -54,7 +54,7 @@ jobs:
       run: npx playwright install --with-deps ${{ matrix.browser }}
     
     - name: Run Playwright tests
-      run: npx playwright test --project=${{ matrix.browser }} -grep-invert="@visual"
+      run: npx playwright test --project=${{ matrix.browser }} --grep-invert="@visual"
       env:
         CI: true
 
@@ -143,8 +143,22 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
           
-      - name: Run BDD Tests
-        run: npx playwright test bdd-tests.spec.ts --project=${{ matrix.browser }}
+      - name: Run BDD Tests (Cucumber)
+        run: |
+          echo "== Listing repo files =="
+          ls -R .
+          echo
+          echo "== Playwright config (if present) =="
+          npx playwright show-config || true
+          echo
+          echo "== Cucumber version =="
+          npx cucumber-js --version || true
+          echo
+          echo "== Available test files (Playwright discover) =="
+          npx playwright test --list --project=${{ matrix.browser }} || true
+          echo
+          echo "== Running Cucumber BDD tests =="
+          npm run test:bdd
         env:
           CI: true
 
