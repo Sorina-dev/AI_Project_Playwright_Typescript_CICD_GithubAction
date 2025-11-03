@@ -50,7 +50,6 @@
   "homepage": "https://github.com/your-github-username/playwright-typescript-project#readme",
   "devDependencies": {
     "@cucumber/cucumber": "^12.2.0",
-    "@cucumber/playwright": "^3.1.0",
     "@playwright/test": "^1.55.1",
     "@types/node": "^20.8.0",
     "cucumber-html-reporter": "^6.0.0",

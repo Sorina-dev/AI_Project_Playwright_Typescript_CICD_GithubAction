@@ -24,10 +24,7 @@ jobs:
           cache: npm
 
       - name: Install deps
-        run: npm ci
-
-      - name: Build project
-        run: npm run build 
+        run: npm ci 
 
   playwright-tests:
     name: Playwright Tests
