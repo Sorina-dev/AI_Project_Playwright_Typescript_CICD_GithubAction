@@ -46,9 +46,9 @@ const API_ENDPOINTS = {
   }
 };
 
-test.describe(' API Testing Suite', () => {
+test.describe(' API Testing Suite @api', () => {
 
-  test.describe(' JSONPlaceholder API Tests - Basic CRUD Operations', () => {
+  test.describe(' JSONPlaceholder API Tests - Basic CRUD Operations @api', () => {
 
     test('🔍 GET - Retrieve all posts', async ({ request }) => {
       console.log(' Testing GET request for all posts...');
@@ -166,7 +166,7 @@ test.describe(' API Testing Suite', () => {
 
   });
 
-  test.describe('ReqRes API Tests - User Management & Authentication', () => {
+  test.describe('ReqRes API Tests - User Management & Authentication @api', () => {
 
     // Add a small delay between tests to avoid rate limiting
     test.beforeEach(async () => {
@@ -374,7 +374,7 @@ test.describe(' API Testing Suite', () => {
 
   });
 
-  test.describe('Advanced API Testing Patterns', () => {
+  test.describe('Advanced API Testing Patterns @api', () => {
 
     test('Performance - Response time validation', async ({ request }) => {
       console.log('Testing API response time...');
@@ -516,7 +516,7 @@ test.describe(' API Testing Suite', () => {
 
   });
 
-  test.describe('API Testing Best Practices Demo', () => {
+  test.describe('API Testing Best Practices Demo @api', () => {
 
     test(' Schema Validation - Ensure consistent API responses', async ({ request }) => {
       console.log('Testing API response schema validation...');

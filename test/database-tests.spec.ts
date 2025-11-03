@@ -168,7 +168,7 @@ class MockDatabase {
   }
 }
 
-test.describe('🗄️ Database Testing Suite', () => {
+test.describe('🗄️ Database Testing Suite @db', () => {
   let db: MockDatabase;
 
   // Setup and teardown
@@ -188,7 +188,7 @@ test.describe('🗄️ Database Testing Suite', () => {
     await db.disconnect();
   });
 
-  test.describe(' Database Connectivity Tests', () => {
+  test.describe(' Database Connectivity Tests @db', () => {
 
     test(' Should establish database connection successfully', async () => {
       console.log(' Testing database connection establishment');
@@ -232,7 +232,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe(' CRUD Operations Testing', () => {
+  test.describe(' CRUD Operations Testing @db', () => {
 
     test(' CREATE - Should insert new user record', async () => {
       console.log(' Testing CREATE operation - Insert new user');
@@ -333,7 +333,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe(' Transaction Testing', () => {
+  test.describe(' Transaction Testing @db', () => {
 
     test('Should commit successful transaction', async () => {
       console.log('Testing successful transaction commit');
@@ -399,7 +399,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe(' Data Integrity Testing', () => {
+  test.describe(' Data Integrity Testing @db', () => {
 
     test('Should validate data types and constraints', async () => {
       console.log('Testing data types and constraints');
@@ -483,7 +483,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe('Database Performance Testing', () => {
+  test.describe('Database Performance Testing @db', () => {
 
     test('Should execute queries within performance thresholds', async () => {
       console.log('Testing query performance');
@@ -535,7 +535,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe('Data Migration Testing', () => {
+  test.describe('Data Migration Testing @db', () => {
 
     test('Should export data successfully', async () => {
       console.log('Testing data export functionality');
@@ -607,7 +607,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe('Database Security Testing', () => {
+  test.describe('Database Security Testing @db', () => {
 
     test('Should prevent SQL injection attempts', async () => {
       console.log('Testing SQL injection prevention');
@@ -657,7 +657,7 @@ test.describe('🗄️ Database Testing Suite', () => {
 
   });
 
-  test.describe('Backup and Recovery Testing', () => {
+  test.describe('Backup and Recovery Testing @db', () => {
 
     test('Should create database backup', async () => {
       console.log('Testing database backup creation');

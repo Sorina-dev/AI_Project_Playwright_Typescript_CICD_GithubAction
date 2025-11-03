@@ -96,13 +96,14 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
       
-      - name: Update Visual Test Snapshots (Linux)
-        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }} --update-snapshots
-        env:
-          CI: true
-          
+      #- name: Update Visual Test Snapshots (Linux)
+      #  run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }} --update-snapshots
+      #  env:
+      #    CI: true
+      
+      
       - name: Run Visual Tests
-        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
+        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}  --grep-invert="@api" --grep-invert="@db"
         env:
           CI: true
 
@@ -195,7 +196,7 @@ jobs:
       run: npx playwright install --with-deps chromium
     
     - name: Run Mobile Tests
-      run: npx playwright test --project=chromium
+      run: npx playwright test --project=chromium --grep-invert="@visual" --grep-invert="@api" --grep-invert="@db"
     
     - name: Upload mobile test results
       uses: actions/upload-artifact@v4
