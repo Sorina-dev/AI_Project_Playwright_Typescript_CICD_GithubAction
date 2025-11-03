@@ -54,7 +54,7 @@ jobs:
       run: npx playwright install --with-deps ${{ matrix.browser }}
     
     - name: Run Playwright tests
-      run: npx playwright test --project=${{ matrix.browser }} --ignore="test/visual-testing-comprehensive.spec"
+      run: npx playwright test --project=${{ matrix.browser }} -grep-invert="@visual"
       env:
         CI: true
 
@@ -69,6 +69,7 @@ jobs:
         retention-days: 30
 
   visual-tests:
+    # on local uses snapshots for windows, and on CI updates linux snapshots and runs tests
     name: Visual Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -180,7 +181,7 @@ jobs:
       run: npx playwright install --with-deps chromium
     
     - name: Run Mobile Tests
-      run: npx playwright test --project=mobile-chrome
+      run: npx playwright test --project=chromium
     
     - name: Upload mobile test results
       uses: actions/upload-artifact@v4

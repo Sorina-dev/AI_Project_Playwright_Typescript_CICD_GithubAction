@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { text } from 'stream/consumers';
 
-test.describe(' Comprehensive Visual Testing Suite', () => {
+test.describe(' Comprehensive Visual Testing Suite @visual', () => {
   
   test.beforeEach(async ({ page }) => {
     // Set consistent settings for visual testing
@@ -24,7 +24,7 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
     });
   });
 
-  test.describe(' Screenshot Testing', () => {
+  test.describe(' Screenshot Testing @visual', () => {
     
     test('Should capture full page visual baseline', async ({ page }) => {
       console.log(' Setting up full page screenshot test...');
@@ -103,7 +103,7 @@ test.describe(' Comprehensive Visual Testing Suite', () => {
     });
   });
 
-  test.describe(' Responsive Visual Testing', () => {
+  test.describe(' Responsive Visual Testing @visual', () => {
     /**
      * Mobile: ❌ Common failures:
 - Text too small to read
@@ -174,7 +174,7 @@ edge cases:
     }
   });
 
-  test.describe(' Theme and Color Testing', () => {
+  test.describe(' Theme and Color Testing @visual', () => {
     
     test('Should test light theme visual appearance', async ({ page }) => {
       console.log(' Setting up light theme test...');
@@ -217,7 +217,7 @@ edge cases:
     });
   });
 
-  test.describe(' Interactive State Testing', () => {
+  test.describe(' Interactive State Testing @visual', () => {
     
     test('Should capture hover states', async ({ page }) => {
       console.log(' Setting up hover state test...');
@@ -326,7 +326,7 @@ edge cases:
 ✅ Tab navigation
 ✅ Pagination navigation
    */
-  test.describe(' Layout and Component Testing', () => {
+  test.describe(' Layout and Component Testing @visual', () => {
     
     test('Should verify navigation layout consistency', async ({ page }) => {
       console.log(' Setting up navigation layout test...');
@@ -405,7 +405,7 @@ edge cases:
     });
   });
 
-  test.describe(' Image and Media Testing', () => {
+  test.describe(' Image and Media Testing @visual', () => {
     
     test('Should verify image loading and display', async ({ page }) => {
       console.log(' Setting up image loading test...');
@@ -480,7 +480,7 @@ edge cases:
     });
   });
 
-  test.describe(' Cross-Browser Visual Consistency', () => {
+  test.describe(' Cross-Browser Visual Consistency @visual', () => {
     
     test('Should maintain visual consistency across browsers', async ({ page, browserName }) => {
       console.log(` Setting up cross-browser test for ${browserName}...`);
@@ -513,7 +513,7 @@ edge cases:
     });
   });
 
-  test.describe(' Performance Visual Testing', () => {
+  test.describe(' Performance Visual Testing @visual', () => {
     
     test('Should capture loading states and transitions', async ({ page }) => {
       console.log(' Setting up loading state test...');
@@ -546,7 +546,7 @@ edge cases:
   });
 });
 
-test.describe(' Visual Testing Utilities', () => {
+test.describe(' Visual Testing Utilities @visual', () => {
   
   test('Should provide visual debugging information', async ({ page }) => {
     console.log(' Setting up visual debugging...');
