@@ -1,5 +1,5 @@
 name: Playwright Tests
-# for tested visual regression testing pipeline
+
 on:
   push:
     branches: [ main, master ]
@@ -10,15 +10,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+  playwright-tests:
     name: Playwright Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: build
     
     strategy:
       fail-fast: false
       matrix:
-        #browser: [chromium, firefox, webkit]  matrix for all browsers
         browser: [chromium]
     
     steps:
@@ -41,12 +57,7 @@ jobs:
       run: npx playwright test --project=${{ matrix.browser }}
       env:
         CI: true
-    
-    - name: Run Visual Tests
-      run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
-      env:
-        CI: true
-    
+
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -57,27 +68,72 @@ jobs:
           test-results/
         retention-days: 30
 
-  test-mobile:
+  visual-tests:
+    name: Visual Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+    
+      - name: Install dependencies 
+        run: npm ci
+    
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+          
+      - name: Run Visual Tests
+        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
+        env:
+          CI: true
+
+      - name: Upload visual test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+  test-mobile:
+    name: Mobile Tests
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: build
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     
-    - name: Use Node.js 20
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: '20'
         cache: 'npm'
     
     - name: Install dependencies
       run: npm ci
     
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium #webkit
+      run: npx playwright install --with-deps chromium
     
     - name: Run Mobile Tests
-      run: npx playwright test --project=mobile-chrome #--project=mobile-safari
+      run: npx playwright test --project=mobile-chrome
     
     - name: Upload mobile test results
       uses: actions/upload-artifact@v4
@@ -90,7 +146,8 @@ jobs:
         retention-days: 30
 
   deploy-report:
-    needs: [test, test-mobile]
+    name: Deploy Reports
+    needs: [playwright-tests, visual-tests, test-mobile]
     runs-on: ubuntu-latest
     if: always()
     
