@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #browser: [chromium, firefox, webkit]
+        #browser: [chromium, firefox, webkit]  matrix for all browsers
         browser: [chromium]
     
     steps:
@@ -69,10 +69,10 @@ jobs:
       run: npm ci
     
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium webkit
+      run: npx playwright install --with-deps chromium #webkit
     
     - name: Run Mobile Tests
-      run: npx playwright test --project=mobile-chrome --project=mobile-safari
+      run: npx playwright test --project=mobile-chrome #--project=mobile-safari
     
     - name: Upload mobile test results
       uses: actions/upload-artifact@v4

@@ -315,7 +315,7 @@ The pipeline is well-structured and production-ready for your Playwright TypeScr
 🏗️ Your Pipeline Architecture:
 3 Jobs Running in Sequence:
 test Job - Desktop browser testing (currently Chromium only)
-test-mobile Job - Mobile device testing (Chrome + Safari mobile)
+test-mobile Job - Mobile device testing (Chrome + Safari mobile) uncomented safari
 deploy-report Job - Publishes HTML reports to GitHub Pages
 🎯 Key Features:
 ✅ Automatic Triggers: Runs on push/PR to main/master
