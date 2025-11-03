@@ -21,6 +21,11 @@ export default defineConfig({
   workers: process.env['CI'] ? 1 : 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
+  
+  /* Visual testing configuration for cross-platform compatibility */
+  expect: {
+    toHaveScreenshot: { threshold: 0.3 }
+  },
   //reporter: [['html', { outputFolder: 'test-results' }]],
   // reporter: [
   //   ['html'],
