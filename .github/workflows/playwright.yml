@@ -96,10 +96,10 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
       
-      #- name: Update Visual Test Snapshots (Linux)
-      #  run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }} --update-snapshots
-      #  env:
-      #    CI: true
+      - name: Update Visual Test Snapshots (Linux)
+        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }} --update-snapshots
+        env:
+          CI: true
       
       
       - name: Run Visual Tests
