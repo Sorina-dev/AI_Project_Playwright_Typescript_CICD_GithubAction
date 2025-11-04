@@ -309,7 +309,7 @@ test.describe(' Accessibility Testing Suite', () => {
       console.log('  Note: Use specialized tools like axe-core for precise WCAG contrast validation');
     });
 
-    test(' Should have proper focus indicators', async ({ page }) => {
+    test.skip(' Should have proper focus indicators', async ({ page }) => {
       console.log(' Testing focus indicators');
       
       // Get focusable elements

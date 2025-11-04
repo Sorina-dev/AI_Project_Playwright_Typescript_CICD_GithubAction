@@ -241,19 +241,40 @@ test('Should support keyboard navigation', async ({ page }) => {
 test('Should have sufficient color contrast', async ({ page }) => {
   await page.goto('/');
   
-  // Test focus indicators
+  // Test focus indicators-- are visual cues that show which element currently has keyboard focus. They're essential for users who navigate with keyboards (including many users with disabilities).
+  //Find and Focus the Button
   const button = page.locator('button').first();
   await button.focus();
   
-  const styles = await button.evaluate(el => {
+  //Extract CSS Styles When Focused
+  const styles = await button.evaluate(el => { //Runs JavaScript code inside the browser on the button element, represents the actual DOM button element
     const computed = getComputedStyle(el, ':focus');
-    return {
-      outline: computed.outline,
-      boxShadow: computed.boxShadow,
-      backgroundColor: computed.backgroundColor
+    
+    return { //Browser API that gets the actual computed CSS values
+      outline: computed.outline,  // e.g., "2px solid blue"
+      boxShadow: computed.boxShadow,  // e.g., "0 0 5px rgba(0,0,255,0.5)"
+      backgroundColor: computed.backgroundColor  // e.g., "rgb(240, 240, 240)"
     };
   });
-  
+  ---------------
+  🎨 What These CSS Properties Do
+1. outline
+
+button:focus {
+  outline: 2px solid blue; /* Traditional focus indicator */
+}
+2. boxShadow
+
+button:focus {
+  box-shadow: 0 0 5px #007acc; /* Modern focus ring */
+}
+
+3. backgroundColor
+
+button:focus {
+  background-color: #f0f0f0; /* Background highlight */
+}
+  ------------------------
   // Verify some form of focus indicator exists
   const hasFocusIndicator = 
     styles.outline !== 'none' || 
@@ -270,6 +291,29 @@ test('Should have sufficient color contrast', async ({ page }) => {
 - ✅ Content is readable without color
 - ✅ Text can be resized up to 200%
 - ✅ Responsive design maintains accessibility
+  
+🚫 What Would Fail This Test
+Bad CSS (no focus indicator):
+```typescript
+button:focus {
+  outline: none; /* ❌ Removes focus indicator */
+  /* No other visual indication */
+}
+```
+Good CSS (visible focus indicator):
+```typescript
+button:focus {
+  outline: 2px solid #007acc; /* ✅ Clear focus ring */
+  outline-offset: 2px;
+}
+``` 
+Why This Approach is Smart
+✅ Realistic Testing - Actually focuses the element like a real user would
+✅ Cross-Browser - Works with any CSS focus styling approach
+✅ Comprehensive - Checks multiple types of focus indicators
+✅ Automated - No manual checking required
+
+
 
 ### 4. 📢 Screen Reader Compatibility
 
@@ -277,22 +321,88 @@ test('Should have sufficient color contrast', async ({ page }) => {
 test('Should have proper ARIA attributes', async ({ page }) => {
   await page.goto('/');
   
-  // Test ARIA landmarks
+  // Test ARIA landmarks , Validates Page Structure: Ensures at least one landmark exists on the page
   const landmarks = page.locator('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
   await expect(landmarks).toHaveCount({ gte: 1 });
+
+The Four Key Landmarks:
+
+role="banner" - Page header/site banner (usually <header>)
+role="navigation" - Navigation menus (usually <nav>)
+role="main" - Primary content area (usually <main>)
+role="contentinfo" - Page footer information (usually <footer>)
+Why This Matters:
+
+Screen Reader Navigation: Users can jump between page sections quickly
+WCAG 2.1 Compliance: Required for Level AA accessibility
+Semantic Structure: Provides meaningful page organization
+Example HTML Structure:
+  
+<header role="banner">Site Header</header>
+<nav role="navigation">Menu</nav>
+<main role="main">Content</main>
+<footer role="contentinfo">Footer</footer>
   
   // Test button labels
   const buttons = page.locator('button');
   for (let i = 0; i < await buttons.count(); i++) {
     const button = buttons.nth(i);
     const hasLabel = await button.evaluate(el => {
-      return el.getAttribute('aria-label') || 
-             el.getAttribute('aria-labelledby') || 
-             el.textContent?.trim();
+      return el.getAttribute('aria-label') ||        // Method 1: Direct label
+             el.getAttribute('aria-labelledby') ||   // Method 2: Reference label
+             el.textContent?.trim();                 // Method 3: Visible text
     });
     expect(hasLabel).toBeTruthy();
   }
 });
+What This Does:
+
+Finds All Buttons: Locates every <button> element on the page
+Checks Each Button: Validates that every button has an accessible name
+Multiple Labeling Methods: Checks three ways a button can be labeled
+The Three Labeling Methods:
+
+aria-label - Direct label attribute
+<button aria-label="Close dialog">×</button>
+
+aria-labelledby - References another element's text
+<h2 id="settings">Settings</h2>
+<button aria-labelledby="settings">⚙️</button>
+
+textContent - Visible text inside the button
+<button>Save Changes</button>
+
+Why This Pattern Works:
+
+Browser Context: evaluate() runs JavaScript inside the browser
+DOM Access: Direct access to element attributes and content
+Fallback Logic: Checks multiple labeling methods in priority order
+Null Safety: ?.trim() handles potential null values
+
+🚫 What Would Fail This Test
+Bad Examples:
+
+<!-- ❌ No landmarks -->
+<div class="header">Header</div>
+<div class="nav">Menu</div>
+<div class="content">Content</div>
+
+<!-- ❌ Unlabeled buttons -->
+<button>×</button>                    <!-- No accessible name -->
+<button aria-label=""></button>       <!-- Empty label -->
+<button>   </button>                  <!-- Only whitespace -->
+
+🚫 Good example:
+<!-- ✅ Proper landmarks -->
+<header role="banner">Site Header</header>
+<nav role="navigation">Main Menu</nav>
+<main role="main">Page Content</main>
+<footer role="contentinfo">Site Footer</footer>
+
+<!-- ✅ Properly labeled buttons -->
+<button>Save</button>                           <!-- Visible text -->
+<button aria-label="Close modal">×</button>     <!-- ARIA label -->
+<button aria-labelledby="title">🗑️</button>    <!-- Referenced label -->
 ```
 
 **What to Test:**
@@ -307,25 +417,65 @@ test('Should have proper ARIA attributes', async ({ page }) => {
 ```typescript
 test('Should have proper alt text for images', async ({ page }) => {
   await page.goto('/');
-  
+
+  // Find All Images
   const images = page.locator('img');
   const imageCount = await images.count();
   
+  //Iterate Through Each Image
   for (let i = 0; i < imageCount; i++) {
     const img = images.nth(i);
+
+    // Extract Image Attributes
     const alt = await img.getAttribute('alt');
     const role = await img.getAttribute('role');
     
+    // Identify Decorative vs. Informative Images
     // Decorative images should have empty alt or role="presentation"
     const isDecorative = alt === '' || role === 'presentation';
-    
+
+    Two types of images:
+
+   🎨 Decorative Images (no meaningful content):
+
+   <!-- ✅ Correct decorative image -->
+<img src="border-decoration.png" alt="">
+<img src="spacer.gif" role="presentation">
+
+📰 Informative Images (convey meaningful content):
+<!-- ✅ Correct informative image -->
+<img src="chart.png" alt="Sales increased 25% in Q3 2024">
+<img src="logo.png" alt="Company Name">
+
+    //Validate Informative Images
     if (!isDecorative) {
-      expect(alt).toBeTruthy();
-      expect(alt!.length).toBeGreaterThan(0);
+      expect(alt).toBeTruthy();  // Alt text exists
+      expect(alt!.length).toBeGreaterThan(0);  // Alt text is not empty
     }
   }
 });
 ```
+❌ What Fails This Test
+Missing or Poor Alt Text:
+
+<!-- ❌ No alt attribute -->
+<img src="important-chart.png">
+
+<!-- ❌ Empty alt for informative image -->
+<img src="product-photo.jpg" alt="">
+
+<!-- ❌ Meaningless alt text -->
+<img src="chart.png" alt="image">
+<img src="photo.jpg" alt="picture">
+<img src="graph.png" alt="graph.png">
+
+
+🧠 Why This Testing Pattern is Smart
+🔄 Comprehensive Coverage
+Tests every single image on the page
+Handles both decorative and informative images correctly
+Follows WCAG 2.1 Level A requirements
+
 
 **What to Test:**
 - ✅ Informative images have descriptive alt text
@@ -376,15 +526,22 @@ test('Should have accessible forms', async ({ page }) => {
 // utils/accessibility-helpers.ts
 export class AccessibilityHelpers {
   /**
-   * Check if element has sufficient color contrast
+   * Check if element has sufficient color contrast against its background, which is crucial for users with visual impairments and low vision.
    */
   static async checkColorContrast(
     page: Page, 
     selector: string
   ): Promise<{ ratio: number; passes: boolean }> {
-    return await page.evaluate((sel) => {
-      const element = document.querySelector(sel);
-      if (!element) return { ratio: 0, passes: false };
+    return await page.evaluate((sel) => {  // This code runs inside the browser
+      const element = document.querySelector(sel);  //Element Discovery
+      if (!element) return { ratio: 0, passes: false };  
+```    
+Safety Check:
+
+Uses standard DOM querySelector()
+Returns failure if element doesn't exist
+Prevents errors from undefined elements
+````typescript
       
       const styles = getComputedStyle(element);
       const textColor = styles.color;
@@ -434,7 +591,7 @@ export class AccessibilityHelpers {
 
 ### Page Object Pattern for Accessibility
 
-```typescript
+````typescript
 // page-objects/AccessiblePage.ts
 export class AccessiblePage {
   constructor(private page: Page) {}
@@ -486,7 +643,7 @@ export class AccessiblePage {
 
 ### 1. 🏗️ Test Organization
 
-```typescript
+````typescript
 // Organize tests by accessibility category
 describe('♿ Accessibility Testing Suite', () => {
   describe('📋 Document Structure', () => {
@@ -505,7 +662,7 @@ describe('♿ Accessibility Testing Suite', () => {
 
 ### 2. 🔄 Test Data Management
 
-```typescript
+````typescript
 // test-data/accessibility-test-data.ts
 export const AccessibilityTestData = {
   wcagGuidelines: {
@@ -535,7 +692,7 @@ export const AccessibilityTestData = {
     complexPage: '/complex-interactions'
   }
 };
-```
+````
 
 ### 3. 📊 Reporting and Documentation
 
