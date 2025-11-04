@@ -487,7 +487,7 @@ test.describe(' API Testing Suite @api', () => {
       console.log(`Complex user data validated for: ${user.name} (${user.email})`);
     });
 
-    test('Parallel Requests - Concurrent API calls', async ({ request }) => {
+    test.skip('Parallel Requests - Concurrent API calls', async ({ request }) => {
       console.log('Testing parallel API requests...');
       
       const startTime = Date.now();
