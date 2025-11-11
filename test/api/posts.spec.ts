@@ -15,7 +15,7 @@ import {
  * Tests include CRUD operations, comments, validation, error handling, and performance metrics.
  */
 
-test.describe('📝 JSONPlaceholder Posts API Tests @api', () => {
+test.describe('📝 JSONPlaceholder Posts API Tests', () => {
   let postsClient: PostsClient;
 
   test.beforeAll(async () => {

@@ -15,7 +15,7 @@ import {
  * and proper error handling (when API key is missing).
  */
 
-test.describe('🔐 ReqRes Authentication & User Management API Tests @api', () => {
+test.describe('🔐 ReqRes Authentication & User Management API Tests', () => {
   let reqresClient: ReqResClient;
 
   test.beforeAll(async () => {

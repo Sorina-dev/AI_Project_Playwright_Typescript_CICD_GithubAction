@@ -54,7 +54,7 @@ jobs:
       run: npx playwright install --with-deps ${{ matrix.browser }}
     
     - name: Run Playwright tests
-      run: npx playwright test --project=${{ matrix.browser }} --grep-invert="@visual" --grep-invert="@api"
+      run: npx playwright test --project=${{ matrix.browser }} --grep-invert="@visual"
       env:
         CI: true
 
@@ -103,7 +103,7 @@ jobs:
       
       
       - name: Run Visual Tests
-        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}  --grep-invert="@api" --grep-invert="@db"
+        run: npx playwright test visual-testing-comprehensive.spec.ts --project=${{ matrix.browser }}
         env:
           CI: true
 
