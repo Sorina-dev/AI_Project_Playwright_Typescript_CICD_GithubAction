@@ -1,0 +1,238 @@
+{
+  "testUsers": [
+    {
+      "id": 1,
+      "name": "Leanne Graham",
+      "username": "Bret",
+      "email": "Sincere@april.biz",
+      "address": {
+        "street": "Kulas Light",
+        "suite": "Apt. 556",
+        "city": "Gwenborough",
+        "zipcode": "92998-3874",
+        "geo": {
+          "lat": "-37.3159",
+          "lng": "81.1496"
+        }
+      },
+      "phone": "1-770-736-8031 x56442",
+      "website": "hildegard.org",
+      "company": {
+        "name": "Romaguera-Crona",
+        "catchPhrase": "Multi-layered client-server neural-net",
+        "bs": "harness real-time e-markets"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Ervin Howell",
+      "username": "Antonette",
+      "email": "Shanna@melissa.tv",
+      "address": {
+        "street": "Victor Plains",
+        "suite": "Suite 879",
+        "city": "Wisokyburgh",
+        "zipcode": "90566-7771",
+        "geo": {
+          "lat": "-43.9509",
+          "lng": "-34.4618"
+        }
+      },
+      "phone": "010-692-6593 x09125",
+      "website": "anastasia.net",
+      "company": {
+        "name": "Deckow-Crist",
+        "catchPhrase": "Proactive didactic contingency",
+        "bs": "synergize scalable supply-chains"
+      }
+    }
+  ],
+  
+  "testPosts": [
+    {
+      "id": 1,
+      "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+      "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
+      "userId": 1
+    },
+    {
+      "id": 2,
+      "title": "qui est esse",
+      "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
+      "userId": 1
+    }
+  ],
+
+  "testComments": [
+    {
+      "id": 1,
+      "name": "id labore ex et quam laborum",
+      "email": "Eliseo@gardner.biz",
+      "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium",
+      "postId": 1
+    },
+    {
+      "id": 2,
+      "name": "quo vero reiciendis velit similique earum",
+      "email": "Jayne_Kuhic@sydney.com",
+      "body": "est natus enim nihil est dolore omnis voluptatem numquam\net omnis occaecati quod ullam at\nvoluptatem error expedita pariatur\nnihil sint nostrum voluptatem reiciendis et",
+      "postId": 1
+    }
+  ],
+
+  "testCredentials": {
+    "valid": {
+      "email": "eve.holt@reqres.in",
+      "password": "cityslicka"
+    },
+    "validRegister": {
+      "email": "eve.holt@reqres.in", 
+      "password": "pistol"
+    },
+    "invalid": {
+      "email": "peter@klaven"
+    },
+    "invalidRegister": {
+      "email": "sydney@fife"
+    }
+  },
+
+  "apiEndpoints": {
+    "jsonPlaceholder": {
+      "baseUrl": "https://jsonplaceholder.typicode.com",
+      "users": "/users",
+      "posts": "/posts", 
+      "comments": "/comments",
+      "albums": "/albums",
+      "photos": "/photos",
+      "todos": "/todos"
+    },
+    "reqres": {
+      "baseUrl": "https://reqres.in/api",
+      "users": "/users",
+      "login": "/login",
+      "register": "/register",
+      "resources": "/unknown"
+    }
+  },
+
+  "testScenarios": {
+    "userManagement": {
+      "createUser": {
+        "description": "Create a new user with valid data",
+        "expectedStatus": 201,
+        "testData": {
+          "name": "morpheus",
+          "job": "leader"
+        }
+      },
+      "updateUser": {
+        "description": "Update an existing user",
+        "expectedStatus": 200,
+        "testData": {
+          "name": "morpheus",
+          "job": "zion resident"
+        }
+      },
+      "deleteUser": {
+        "description": "Delete an existing user",
+        "expectedStatus": 204
+      }
+    },
+    "authentication": {
+      "successfulLogin": {
+        "description": "Login with valid credentials",
+        "expectedStatus": 200,
+        "expectedFields": ["token"]
+      },
+      "failedLogin": {
+        "description": "Login with invalid credentials",
+        "expectedStatus": 400,
+        "expectedFields": ["error"]
+      }
+    }
+  },
+
+  "validationSchemas": {
+    "user": {
+      "id": { "type": "number", "required": true },
+      "name": { "type": "string", "required": true, "minLength": 1 },
+      "email": { "type": "string", "required": true, "email": true },
+      "username": { "type": "string", "required": false },
+      "phone": { "type": "string", "required": false },
+      "website": { "type": "string", "required": false }
+    },
+    "post": {
+      "id": { "type": "number", "required": true },
+      "title": { "type": "string", "required": true, "minLength": 1 },
+      "body": { "type": "string", "required": true, "minLength": 1 },
+      "userId": { "type": "number", "required": true }
+    },
+    "comment": {
+      "id": { "type": "number", "required": true },
+      "name": { "type": "string", "required": true },
+      "email": { "type": "string", "required": true, "email": true },
+      "body": { "type": "string", "required": true },
+      "postId": { "type": "number", "required": true }
+    }
+  },
+
+  "performanceThresholds": {
+    "responseTime": {
+      "fast": 500,
+      "acceptable": 2000,
+      "slow": 5000
+    },
+    "testSuite": {
+      "maxDuration": 60000,
+      "maxAverageResponseTime": 1000,
+      "minSuccessRate": 95
+    }
+  },
+
+  "errorMessages": {
+    "invalidCredentials": "Missing email or username",
+    "userNotFound": "User not found",
+    "invalidEmail": "Invalid email format",
+    "requiredField": "Field is required",
+    "invalidData": "Invalid data provided"
+  },
+
+  "mockResponses": {
+    "createUserSuccess": {
+      "name": "morpheus",
+      "job": "leader",
+      "id": "123",
+      "createdAt": "2023-01-01T00:00:00.000Z"
+    },
+    "loginSuccess": {
+      "token": "QpwL5tke4Pnpja7X4"
+    },
+    "loginFailure": {
+      "error": "Missing password"
+    }
+  },
+
+  "bulkTestData": {
+    "users": {
+      "small": 5,
+      "medium": 50,
+      "large": 100
+    },
+    "posts": {
+      "small": 10,
+      "medium": 100,
+      "large": 500
+    }
+  },
+
+  "specialCharacters": {
+    "unicode": "Test with ünïcödé characters 你好世界 🚀",
+    "html": "<script>alert('xss')</script>",
+    "sql": "'; DROP TABLE users; --",
+    "longText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "emptyString": "",
+    "nullValue": null,
+    "specialChars": "!@#$%^&*()[]{}|;':\",./<>?"
+  }
+}
