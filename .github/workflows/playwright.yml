@@ -253,6 +253,86 @@ jobs:
             test-results/
           retention-days: 30        
 
+  k6-performance-tests:
+    name: K6 Performance Tests
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install K6
+        run: |
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Install performance test dependencies
+        working-directory: ./performance-tests
+        run: npm install --production
+
+      - name: Run K6 Performance Tests - Quick Load Test
+        working-directory: ./performance-tests
+        run: |
+          echo "🚀 Starting K6 Performance Tests against Mock Server"
+          echo "📍 Target: https://mock-api-server.wiremockapi.cloud"
+          k6 run --out html=k6-quick-report.html --stage 30s:10,1m:10,30s:0 main-performance-test.js
+        env:
+          CI: true
+
+      - name: Run K6 Performance Tests - Individual Test Suites
+        working-directory: ./performance-tests
+        run: |
+          echo "🧪 Running individual test suites"
+          k6 run --out json=get-requests-results.json tests/get-requests.test.js
+          k6 run --out json=post-requests-results.json tests/post-requests.test.js
+          k6 run --out json=put-requests-results.json tests/put-requests.test.js
+          k6 run --out json=delete-requests-results.json tests/delete-requests.test.js
+        env:
+          CI: true
+        continue-on-error: true
+
+      - name: Generate K6 Performance Summary
+        working-directory: ./performance-tests
+        run: |
+          echo "# 📊 K6 Performance Test Results" > k6-summary.md
+          echo "" >> k6-summary.md
+          echo "## Test Execution Summary" >> k6-summary.md
+          echo "- **Test Date**: $(date)" >> k6-summary.md
+          echo "- **Target Environment**: Mock API Server" >> k6-summary.md
+          echo "- **Test Type**: Load Testing (CI/CD Pipeline)" >> k6-summary.md
+          echo "" >> k6-summary.md
+          echo "## Test Files Executed" >> k6-summary.md
+          echo "- ✅ Main Performance Test (Quick Load)" >> k6-summary.md
+          echo "- ✅ GET Requests Test Suite" >> k6-summary.md
+          echo "- ✅ POST Requests Test Suite" >> k6-summary.md
+          echo "- ✅ PUT Requests Test Suite" >> k6-summary.md
+          echo "- ✅ DELETE Requests Test Suite" >> k6-summary.md
+          echo "" >> k6-summary.md
+          echo "## Reports Generated" >> k6-summary.md
+          echo "- HTML Report: k6-quick-report.html" >> k6-summary.md
+          echo "- JSON Results: *-results.json files" >> k6-summary.md
+
+      - name: Upload K6 Performance Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-performance-report
+          path: |
+            performance-tests/k6-quick-report.html
+            performance-tests/*-results.json
+            performance-tests/k6-summary.md
+          retention-days: 30
+
   # test-mobile:
   #   name: Mobile Tests
   #   timeout-minutes: 60
@@ -290,7 +370,7 @@ jobs:
 
   deploy-report:
     name: Deploy Reports
-    needs: [playwright-tests, visual-tests, BDD-tests]
+    needs: [playwright-tests, visual-tests, BDD-tests, k6-performance-tests]
     runs-on: ubuntu-latest
     if: always()
     
