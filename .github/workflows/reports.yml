@@ -1,0 +1,79 @@
+name: Deploy Test Reports
+
+on:
+  workflow_run:
+    workflows: ["Playwright Tests"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports/
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      
+      - name: Create index page
+        run: |
+          cat > reports/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Test Reports</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 40px; }
+                  .report-link { 
+                      display: block; 
+                      padding: 15px; 
+                      margin: 10px 0; 
+                      background: #f5f5f5; 
+                      text-decoration: none; 
+                      border-radius: 5px;
+                      color: #333;
+                  }
+                  .report-link:hover { background: #e0e0e0; }
+              </style>
+          </head>
+          <body>
+              <h1>🧪 Test Reports Dashboard</h1>
+              <div>
+                  <a href="playwright-html-report-chromium/index.html" class="report-link">
+                      📊 Playwright Tests Report
+                  </a>
+                  <a href="visual-html-report-chromium/index.html" class="report-link">
+                      🎨 Visual Tests Report  
+                  </a>
+                  <a href="api-html-report-chromium/index.html" class="report-link">
+                      🌐 API Tests Report
+                  </a>
+                  <a href="bdd-report-chromium/cucumber-report.html" class="report-link">
+                      🥒 BDD Tests Report
+                  </a>
+              </div>
+          </body>
+          </html>
+          EOF
+      
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: reports/
+      
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

@@ -66,6 +66,16 @@ jobs:
         path: |
           playwright-report/
           test-results/
+          screenshots/
+          videos/
+        retention-days: 30
+
+    - name: Upload Playwright HTML Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-html-report-${{ matrix.browser }}
+        path: playwright-report/
         retention-days: 30
 
   visual-tests:
@@ -107,6 +117,13 @@ jobs:
         env:
           CI: true
 
+      - name: Run Percy Visual Tests (Cross-Platform)
+        run: npm run test:visual-percy
+        env:
+          CI: true
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        if: env.PERCY_TOKEN != ''
+
       - name: Upload visual test results
         uses: actions/upload-artifact@v4
         if: always()
@@ -115,6 +132,16 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            screenshots/
+            videos/
+          retention-days: 30
+
+      - name: Upload Visual Test HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-html-report-${{ matrix.browser }}
+          path: playwright-report/
           retention-days: 30
 
   api-tests:
@@ -157,6 +184,16 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            screenshots/
+            videos/
+          retention-days: 30
+
+    - name: Upload API Test HTML Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: api-html-report-${{ matrix.browser }}
+          path: playwright-report/
           retention-days: 30
     
 

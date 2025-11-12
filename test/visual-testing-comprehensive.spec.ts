@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { text } from 'stream/consumers';
+import percySnapshot from '@percy/playwright';
 
 test.describe(' Comprehensive Visual Testing Suite @visual', () => {
   
@@ -99,8 +99,76 @@ test.describe(' Comprehensive Visual Testing Suite @visual', () => {
         await expect(heroSection).toHaveScreenshot('hero-section.png');
       }
       
-      console.log(' Element screenshots captured successfully');
+      console.log('✅ Element screenshots captured successfully');
     });
+  });
+
+  test.describe('🎯 Percy Cross-Platform Visual Testing @visual', () => {
+    
+    test('Percy - Cross-Platform Homepage Comparison', async ({ page }) => {
+      console.log('🚀 Starting Percy cross-platform visual test...');
+      
+      await page.goto('https://playwright.dev/');
+      await page.waitForLoadState('networkidle');
+      
+      // Percy automatically handles cross-platform differences
+      await percySnapshot(page, 'Playwright Homepage - Cross Platform', {
+        widths: [375, 768, 1280, 1920], // Multiple breakpoints
+        minHeight: 1024
+      });
+      
+      console.log('✅ Percy cross-platform snapshot completed');
+    });
+
+    test('Percy - Navigation States', async ({ page }) => {
+      console.log('🚀 Testing navigation states with Percy...');
+      
+      await page.goto('https://playwright.dev/');
+      await page.waitForLoadState('networkidle');
+      
+      // Capture normal state
+      await percySnapshot(page, 'Navigation - Normal State');
+      
+      // Hover state
+      await page.hover('nav a[href*="docs"]');
+      await page.waitForTimeout(500);
+      await percySnapshot(page, 'Navigation - Hover State');
+      
+      console.log('✅ Navigation Percy snapshots completed');
+    });
+
+    test('Percy - Form Focus States', async ({ page }) => {
+      console.log('🚀 Testing form focus states with Percy...');
+      
+      await page.goto('https://playwright.dev/');
+      await page.waitForLoadState('networkidle');
+      
+      // Find and focus on search input
+      const searchInput = page.locator('input[type="search"], [placeholder*="search" i]').first();
+      if (await searchInput.count() > 0) {
+        await searchInput.focus();
+        await page.waitForTimeout(300);
+        await percySnapshot(page, 'Search Input - Focus State');
+      }
+      
+      console.log('✅ Form focus Percy snapshots completed');
+    });
+
+    test('Percy - Responsive Breakpoints', async ({ page }) => {
+      console.log('🚀 Testing responsive breakpoints with Percy...');
+      
+      await page.goto('https://playwright.dev/');
+      await page.waitForLoadState('networkidle');
+      
+      // Percy handles multiple breakpoints in a single snapshot
+      await percySnapshot(page, 'Responsive Design - All Breakpoints', {
+        widths: [320, 375, 768, 1024, 1280, 1920],
+        minHeight: 1024
+      });
+      
+      console.log('✅ Responsive Percy snapshots completed');
+    });
+
   });
 
   test.describe(' Responsive Visual Testing @visual', () => {

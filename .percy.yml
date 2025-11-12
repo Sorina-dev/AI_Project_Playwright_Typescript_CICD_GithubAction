@@ -1,0 +1,20 @@
+version: 2
+discovery:
+  allowed-hostnames:
+    - playwright.dev
+    - example.com
+    - reqres.in
+    - jsonplaceholder.typicode.com
+snapshot:
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+  min-height: 1024
+  percy-css: |
+    /* Hide elements that might cause flaky tests */
+    [data-testid="timestamp"], 
+    .loading-spinner,
+    .animation {
+      visibility: hidden !important;
+    }
