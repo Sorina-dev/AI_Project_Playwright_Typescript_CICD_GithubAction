@@ -52,13 +52,13 @@ jobs:
           <body>
               <h1>🧪 Test Reports Dashboard</h1>
               <div>
-                  <a href="playwright-html-report-chromium/index.html" class="report-link">
+                  <a href="playwright-report-chromium/index.html" class="report-link">
                       📊 Playwright Tests Report
                   </a>
-                  <a href="visual-html-report-chromium/index.html" class="report-link">
+                  <a href="visual-report-chromium/index.html" class="report-link">
                       🎨 Visual Tests Report  
                   </a>
-                  <a href="api-html-report-chromium/index.html" class="report-link">
+                  <a href="api-report-chromium/index.html" class="report-link">
                       🌐 API Tests Report
                   </a>
                   <a href="bdd-report-chromium/cucumber-report.html" class="report-link">
