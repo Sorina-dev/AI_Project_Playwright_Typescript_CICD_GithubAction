@@ -70,6 +70,14 @@ jobs:
           videos/
         retention-days: 30
 
+    - name: Upload Playwright HTML Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-html-report-${{ matrix.browser }}
+        path: playwright-report/
+        retention-days: 30
+
   visual-tests:
     # on local uses snapshots for windows, and on CI updates linux snapshots and runs tests
     name: Visual Tests
@@ -128,6 +136,14 @@ jobs:
             videos/
           retention-days: 30
 
+      - name: Upload Visual Test HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-html-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 30
+
   api-tests:
     name: API Tests
     timeout-minutes: 60
@@ -170,6 +186,14 @@ jobs:
             test-results/
             screenshots/
             videos/
+          retention-days: 30
+
+    - name: Upload API Test HTML Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: api-html-report-${{ matrix.browser }}
+          path: playwright-report/
           retention-days: 30
     
 

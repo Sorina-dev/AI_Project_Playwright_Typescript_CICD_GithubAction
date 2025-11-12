@@ -1,0 +1,131 @@
+{
+  "name": "expense-management-k6-performance-tests",
+  "version": "1.0.0",
+  "description": "K6 Performance Testing Suite for Expense Management API using Page Object Model (POM) design pattern",
+  "main": "main-performance-test.js",
+  "scripts": {
+    "test": "k6 run main-performance-test.js",
+    "test:get": "k6 run tests/get-requests.test.js",
+    "test:post": "k6 run tests/post-requests.test.js", 
+    "test:put": "k6 run tests/put-requests.test.js",
+    "test:delete": "k6 run tests/delete-requests.test.js",
+    "test:stress": "k6 run tests/stress-test.js",
+    "test:report": "k6 run --out html=reports/performance-report.html main-performance-test.js",
+    "test:json": "k6 run --out json=reports/results.json main-performance-test.js",
+    "test:all": "npm run test:get && npm run test:post && npm run test:put && npm run test:delete",
+    "test:quick": "k6 run --vus 10 --duration 30s main-performance-test.js",
+    "test:load": "k6 run --vus 50 --duration 5m main-performance-test.js",
+    "test:spike": "k6 run --stage 30s:10,1m:100,30s:10 main-performance-test.js",
+    "test:debug": "k6 run --iterations 1 --vus 1 main-performance-test.js",
+    "clean": "rm -rf reports/*.html reports/*.json || true",
+    "setup": "mkdir -p reports",
+    "validate": "k6 version && echo 'K6 is properly installed'",
+    "help": "echo 'Available commands: test, test:stress, test:report, test:all, test:quick, test:load, test:spike, test:debug'"
+  },
+  "directories": {
+    "test": "tests",
+    "lib": "pages",
+    "config": "config"
+  },
+  "keywords": [
+    "k6",
+    "performance-testing",
+    "load-testing",
+    "stress-testing",
+    "api-testing",
+    "page-object-model",
+    "pom",
+    "expense-management",
+    "automation",
+    "testing"
+  ],
+  "author": "Performance Testing Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sorina-dev/Project_Playwright_Typescript_CICD_GithubAction.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sorina-dev/Project_Playwright_Typescript_CICD_GithubAction/issues"
+  },
+  "homepage": "https://github.com/Sorina-dev/Project_Playwright_Typescript_CICD_GithubAction#readme",
+  "devDependencies": {
+    "k6": ">=0.40.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "config": {
+    "k6": {
+      "version": ">=0.40.0"
+    }
+  },
+  "performance-test-info": {
+    "target-api": "Expense Management API",
+    "base-url": "https://mock-api-server.wiremockapi.cloud",
+    "test-types": [
+      "Load Testing",
+      "Stress Testing", 
+      "API Testing",
+      "End-to-End Testing"
+    ],
+    "endpoints-tested": {
+      "GET": [
+        "/api/v1/employees/me",
+        "/api/v1/expense-types", 
+        "/api/v1/medical-expenses/available-amount"
+      ],
+      "POST": [
+        "/api/v1/expenses",
+        "/api/v1/medical-expenses"
+      ],
+      "PUT": [
+        "/api/v1/expenses",
+        "/api/v1/locations"
+      ],
+      "DELETE": [
+        "/api/v1/request-expenses/{id}",
+        "/api/v1/locations/{id}"
+      ]
+    },
+    "load-patterns": {
+      "default": "50 users over 2 minutes",
+      "stress": "10→100→0 users (2m→5m→10m→2m)",
+      "spike": "10→100→10 users rapid changes"
+    },
+    "features": [
+      "Page Object Model (POM) design",
+      "Realistic user behavior simulation",
+      "Authentication handling",
+      "Dynamic test data generation",
+      "Comprehensive error handling",
+      "Think time simulation",
+      "Multiple user personas",
+      "Detailed reporting",
+      "Environment configuration",
+      "Resource cleanup"
+    ]
+  },
+  "environmentVariables": {
+    "K6_BASE_URL": "Base URL for the API (default: mock server)",
+    "K6_LOG_LEVEL": "Logging level (debug, info, warn, error)",
+    "K6_DURATION": "Test duration override",
+    "K6_VUS": "Virtual users override"
+  },
+  "testExamples": {
+    "basic-test": "k6 run main-performance-test.js",
+    "custom-load": "k6 run --vus 100 --duration 10m main-performance-test.js",
+    "with-report": "k6 run --out html=report.html main-performance-test.js",
+    "debug-mode": "K6_LOG_LEVEL=debug k6 run --iterations 1 --vus 1 main-performance-test.js"
+  },
+  "supportedK6Outputs": [
+    "html",
+    "json", 
+    "csv",
+    "influxdb",
+    "statsd",
+    "datadog",
+    "new-relic",
+    "prometheus"
+  ]
+}
