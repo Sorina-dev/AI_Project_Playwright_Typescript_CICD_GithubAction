@@ -1,0 +1,274 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "K6 Expense Management Performance",
+    "tags": ["k6", "performance", "expense-management"],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 0,
+    "time": {
+      "from": "now-5m",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 30,
+    "version": 1,
+    "links": [],
+    "panels": [
+      {
+        "id": 1,
+        "title": "Virtual Users",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 50 },
+                { "color": "red", "value": 100 }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto"
+        },
+        "targets": [
+          {
+            "expr": "vus",
+            "refId": "A",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Request Rate (RPS)",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 1 },
+                { "color": "green", "value": 5 }
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "targets": [
+          {
+            "expr": "rate(http_reqs)",
+            "refId": "A",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate %",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 0.05 },
+                { "color": "red", "value": 0.1 }
+              ]
+            },
+            "unit": "percent"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "targets": [
+          {
+            "expr": "rate(http_req_failed) * 100",
+            "refId": "A",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Response Time P95",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 1000 },
+                { "color": "red", "value": 2000 }
+              ]
+            },
+            "unit": "ms"
+          }
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        },
+        "targets": [
+          {
+            "expr": "http_req_duration",
+            "refId": "A",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Response Times Over Time",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+        "yAxes": [
+          {
+            "label": "Response Time (ms)",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "http_req_duration",
+            "refId": "P50",
+            "alias": "P50",
+            "datasource": "InfluxDB-K6"
+          },
+          {
+            "expr": "http_req_duration",
+            "refId": "P95",
+            "alias": "P95",
+            "datasource": "InfluxDB-K6"
+          },
+          {
+            "expr": "http_req_duration",
+            "refId": "P99",
+            "alias": "P99",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Virtual Users Over Time",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "yAxes": [
+          {
+            "label": "Users",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "vus",
+            "refId": "A",
+            "alias": "Active Users",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "HTTP Status Codes",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+        "targets": [
+          {
+            "expr": "http_req_status_2xx",
+            "refId": "2xx",
+            "alias": "2xx Success",
+            "datasource": "InfluxDB-K6"
+          },
+          {
+            "expr": "http_req_status_4xx",
+            "refId": "4xx", 
+            "alias": "4xx Client Error",
+            "datasource": "InfluxDB-K6"
+          },
+          {
+            "expr": "http_req_status_5xx",
+            "refId": "5xx",
+            "alias": "5xx Server Error", 
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Request Rate Over Time",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+        "yAxes": [
+          {
+            "label": "Requests/sec",
+            "min": 0
+          }
+        ],
+        "targets": [
+          {
+            "expr": "rate(http_reqs)",
+            "refId": "A",
+            "alias": "Request Rate",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Test Progress",
+        "type": "bargauge",
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "continuous-GrYlRd" },
+            "max": 100,
+            "min": 0,
+            "unit": "percent"
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "showUnfilled": true
+        },
+        "targets": [
+          {
+            "expr": "(iteration / iterations) * 100",
+            "refId": "A",
+            "alias": "Test Progress %",
+            "datasource": "InfluxDB-K6"
+          }
+        ]
+      }
+    ]
+  }
+}

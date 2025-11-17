@@ -1,8 +1,8 @@
 /**
  * Employee Page Object for K6 Performance Tests
- * Expense Management API - Employee Operations
+ * JSONPlaceholder API - User Operations (simulating employees)
  * 
- * This class handles employee-related API operations
+ * This class handles user/employee-related API operations using JSONPlaceholder
  */
 
 import { BasePage } from './BasePage.js';
@@ -12,16 +12,16 @@ import { ResponseValidator } from '../utils/helpers.js';
 export class EmployeePage extends BasePage {
   
   /**
-   * Get current user information
-   * @param {String} token - Authentication token
+   * Get current user information (simulate by getting random user)
+   * @param {Number} userId - User ID (no token needed for JSONPlaceholder)
    * @returns {Object} HTTP response
    */
-  getCurrentUser(token) {
-    console.log('👤 Getting current user information...');
+  getCurrentUser(userId = 1) {
+    console.log(`👤 Getting user information for ID: ${userId}...`);
     
     const response = this.get(
-      CONFIG.ENDPOINTS.EMPLOYEES_ME,
-      this.getAuthHeaders(token)
+      `${CONFIG.ENDPOINTS.USERS}/${userId}`,
+      {} // No auth headers needed for JSONPlaceholder
     );
     
     ResponseValidator.validateGetResponse(response, 'Get Current User');
@@ -39,17 +39,16 @@ export class EmployeePage extends BasePage {
   }
   
   /**
-   * Get list of employees (with filters)
-   * @param {String} token - Authentication token
-   * @param {Object} filters - Filter parameters
+   * Get list of users/employees
+   * @param {Object} filters - Filter parameters (JSONPlaceholder has limited filtering)
    * @returns {Object} HTTP response
    */
-  getEmployees(token, filters = {}) {
-    console.log('👥 Getting employees list...');
+  getEmployees(filters = {}) {
+    console.log('👥 Getting employees/users list...');
     
     const response = this.get(
-      CONFIG.ENDPOINTS.EMPLOYEES,
-      this.getAuthHeaders(token),
+      CONFIG.ENDPOINTS.USERS, // Use USERS endpoint for JSONPlaceholder
+      {}, // No auth headers needed
       filters
     );
     
@@ -59,7 +58,7 @@ export class EmployeePage extends BasePage {
       try {
         const employees = JSON.parse(response.body);
         const count = Array.isArray(employees) ? employees.length : employees.count || 'Unknown';
-        console.log(`✅ Retrieved ${count} employees`);
+        console.log(`✅ Retrieved ${count} employees/users`);
       } catch (e) {
         console.error('❌ Failed to parse employees data');
       }

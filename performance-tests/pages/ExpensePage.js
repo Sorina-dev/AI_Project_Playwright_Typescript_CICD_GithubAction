@@ -1,8 +1,8 @@
 /**
  * Expense Page Object for K6 Performance Tests
- * Expense Management API - Expense Operations
+ * JSONPlaceholder API - Posts Operations (simulating expenses)
  * 
- * This class handles expense-related API operations
+ * This class handles post/expense-related API operations using JSONPlaceholder
  */
 
 import { BasePage } from './BasePage.js';
@@ -12,16 +12,16 @@ import { ResponseValidator, DataGenerator } from '../utils/helpers.js';
 export class ExpensePage extends BasePage {
   
   /**
-   * Get expense types available for user
-   * @param {String} token - Authentication token
+   * Get expense types available (simulate using albums as categories)
+   * @param {Number} userId - User ID (no token needed for JSONPlaceholder)
    * @returns {Object} HTTP response
    */
-  getExpenseTypes(token) {
-    console.log('📋 Getting expense types...');
+  getExpenseTypes(userId = 1) {
+    console.log('📋 Getting expense types/categories (albums)...');
     
     const response = this.get(
-      CONFIG.ENDPOINTS.EXPENSE_TYPES,
-      this.getAuthHeaders(token)
+      CONFIG.ENDPOINTS.ALBUMS, // Using albums as expense categories
+      {} // No auth headers needed
     );
     
     ResponseValidator.validateGetResponse(response, 'Get Expense Types');
@@ -30,7 +30,7 @@ export class ExpensePage extends BasePage {
       try {
         const expenseTypes = JSON.parse(response.body);
         const count = Array.isArray(expenseTypes) ? expenseTypes.length : expenseTypes.count || 'Unknown';
-        console.log(`✅ Retrieved ${count} expense types`);
+        console.log(`✅ Retrieved ${count} expense types/categories`);
       } catch (e) {
         console.error('❌ Failed to parse expense types data');
       }
@@ -40,20 +40,20 @@ export class ExpensePage extends BasePage {
   }
   
   /**
-   * Create new expense
-   * @param {String} token - Authentication token
+   * Create new expense (simulate using posts)
+   * @param {Number} userId - User ID
    * @param {Object} expenseData - Expense data (optional, will generate random if not provided)
    * @returns {Object} HTTP response
    */
-  createExpense(token, expenseData = null) {
+  createExpense(userId = 1, expenseData = null) {
     const expense = expenseData || DataGenerator.randomExpense();
     
-    console.log(`💰 Creating expense: ${expense.description} - ${expense.amount} ${expense.currency}`);
+    console.log(`💰 Creating expense: ${expense.title || expense.description || 'New Expense'}`);
     
     const response = this.post(
-      CONFIG.ENDPOINTS.EXPENSES,
+      CONFIG.ENDPOINTS.POSTS, // Using posts as expenses
       expense,
-      this.getAuthHeaders(token)
+      {} // No auth headers needed for JSONPlaceholder
     );
     
     ResponseValidator.validatePostResponse(response, 'Create Expense');
@@ -61,11 +61,81 @@ export class ExpensePage extends BasePage {
     if (response.status === 201 || response.status === 200) {
       try {
         const createdExpense = JSON.parse(response.body);
-        console.log(`✅ Created expense with ID: ${createdExpense.id || createdExpense._id || 'Unknown'}`);
+        console.log(`✅ Created expense with ID: ${createdExpense.id || 'Unknown'}`);
         return { ...response, createdExpense };
       } catch (e) {
         console.error('❌ Failed to parse created expense data');
       }
+    }
+    
+    return response;
+  }
+  
+  /**
+   * Get user's expenses (posts by user ID)
+   * @param {Number} userId - User ID
+   * @returns {Object} HTTP response
+   */
+  getUserExpenses(userId) {
+    console.log(`📋 Getting expenses for user ${userId}...`);
+    
+    const response = this.get(
+      `${CONFIG.ENDPOINTS.POSTS}?userId=${userId}`,
+      {}
+    );
+    
+    ResponseValidator.validateGetResponse(response, 'Get User Expenses');
+    
+    if (response.status === 200) {
+      try {
+        const expenses = JSON.parse(response.body);
+        console.log(`✅ Retrieved ${expenses.length} expenses for user ${userId}`);
+      } catch (e) {
+        console.error('❌ Failed to parse expenses data');
+      }
+    }
+    
+    return response;
+  }
+  
+  /**
+   * Update expense (using PUT)
+   * @param {Number} expenseId - Expense ID
+   * @param {Object} expenseData - Updated expense data
+   * @returns {Object} HTTP response
+   */
+  updateExpense(expenseId, expenseData) {
+    console.log(`📝 Updating expense ${expenseId}...`);
+    
+    const response = this.put(
+      `${CONFIG.ENDPOINTS.POSTS}/${expenseId}`,
+      expenseData,
+      {}
+    );
+    
+    ResponseValidator.validatePutResponse(response, 'Update Expense');
+    
+    if (response.status === 200) {
+      console.log(`✅ Successfully updated expense ${expenseId}`);
+    }
+    
+    return response;
+  }
+  
+  /**
+   * Delete expense
+   * @param {Number} expenseId - Expense ID
+   * @returns {Object} HTTP response
+   */
+  deleteExpense(expenseId) {
+    console.log(`🗑️ Deleting expense ${expenseId}...`);
+    
+    const response = this.delete(`${CONFIG.ENDPOINTS.POSTS}/${expenseId}`);
+    
+    ResponseValidator.validateDeleteResponse(response, 'Delete Expense');
+    
+    if (response.status === 200) {
+      console.log(`✅ Successfully deleted expense ${expenseId}`);
     }
     
     return response;

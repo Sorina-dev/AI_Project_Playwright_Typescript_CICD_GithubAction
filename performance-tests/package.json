@@ -18,11 +18,21 @@
     "test:ci-all": "k6 run tests/get-requests.test.js && k6 run tests/post-requests.test.js && k6 run tests/put-requests.test.js && k6 run tests/delete-requests.test.js",
     "test:load": "k6 run --vus 50 --duration 5m main-performance-test.js",
     "test:spike": "k6 run --stage 30s:10,1m:100,30s:10 main-performance-test.js",
+    "test:endurance": "k6 run --vus 25 --duration 30m main-performance-test.js",
+    "test:soak": "k6 run --vus 25 --duration 60m main-performance-test.js",
+    "test:volume": "k6 run --vus 100 --iterations 10000 main-performance-test.js",
     "test:debug": "k6 run --iterations 1 --vus 1 main-performance-test.js",
+    "test:grafana": "k6 run --out influxdb=http://localhost:8086/k6 main-performance-test.js",
+    "test:load:grafana": "k6 run --out influxdb=http://localhost:8086/k6 --vus 50 --duration 5m main-performance-test.js",
+    "test:stress:grafana": "k6 run --out influxdb=http://localhost:8086/k6 tests/stress-test.js",
+    "test:endurance:grafana": "k6 run --out influxdb=http://localhost:8086/k6 tests/endurance-test.js",
+    "grafana:start": "cd grafana-stack && docker-compose up -d",
+    "grafana:stop": "cd grafana-stack && docker-compose down",
+    "grafana:status": "cd grafana-stack && docker-compose ps",
     "clean": "rm -rf reports/*.html reports/*.json || true",
     "setup": "mkdir -p reports",
     "validate": "k6 version && echo 'K6 is properly installed'",
-    "help": "echo 'Available commands: test, test:stress, test:report, test:all, test:quick, test:load, test:spike, test:debug'"
+    "help": "echo 'Available commands: test, test:stress, test:load, test:spike, test:endurance, test:soak, test:volume, test:grafana, grafana:start, test:report, test:all, test:debug'"
   },
   "directories": {
     "test": "tests",

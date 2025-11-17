@@ -1,27 +1,41 @@
 /**
  * K6 Performance Test - POST Requests
- * Expense Management API - POST Operations Test Suite
+ * JSONPlaceholder API - POST Operations Test Suite
  * 
  * This test suite focuses on POST request performance testing
- * Tests: /expenses (create expense), /medical-expenses (create medical expense)
+ * Tests: /posts (create posts/expenses), /comments (add comments)
  */
 
+import http from 'k6/http';
+import { check, sleep } from 'k6';
 import { CONFIG } from '../config/config.js';
-import { getRandomAuthenticatedUser } from '../utils/auth.js';
-import { ThinkTime, DataGenerator } from '../utils/helpers.js';
-import ExpensePage from '../pages/ExpensePage.js';
-import MedicalExpensePage from '../pages/MedicalExpensePage.js';
 
 // Test configuration - focused on POST requests
-export const options = CONFIG.TEST_CONFIG.DEFAULT_LOAD;
+export const options = {
+  scenarios: {
+    post_load_test: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '30s', target: 5 },    // Ramp up to 5 users
+        { duration: '1m', target: 10 },    // Scale to 10 users
+        { duration: '30s', target: 0 },    // Ramp down
+      ],
+    }
+  },
+  thresholds: {
+    http_req_duration: ['p(95)<2000'],     // 95% of requests should be below 2000ms
+    http_req_failed: ['rate<0.1'],         // Less than 10% of requests should fail
+    http_reqs: ['rate>2'],                 // Should generate more than 2 requests per second
+    checks: ['rate>0.9'],                  // 90% of checks should pass
+    
+    // Individual endpoint thresholds
+    'http_req_duration{name:create_post}': ['p(95)<1500'],
+    'http_req_duration{name:create_comment}': ['p(95)<1000'],
+  }
+};
 
-// Page objects
-const expensePage = new ExpensePage();
-const medicalExpensePage = new MedicalExpensePage();
-
-// Store created IDs for cleanup (in real scenario)
-let createdExpenseIds = [];
-let createdMedicalExpenseIds = [];
+// Store created IDs for reference (JSONPlaceholder always returns ID 101 for new posts)
+let createdPostIds = [];
 
 /**
  * Setup function - runs once before the test starts
@@ -29,173 +43,176 @@ let createdMedicalExpenseIds = [];
 export function setup() {
   console.log('🚀 Starting POST Requests Performance Test');
   console.log(`📍 Target: ${CONFIG.BASE_URL}`);
-  console.log('🎯 Testing POST endpoints: /expenses, /medical-expenses');
+  console.log('🎯 Testing POST endpoints: /posts, /comments');
   console.log('⏱️ Starting load test...\n');
   
-  // Pre-warm the system by getting expense types
-  const authUser = getRandomAuthenticatedUser();
-  if (authUser.token) {
-    console.log('🔧 Pre-warming system...');
-    expensePage.getExpenseTypes(authUser.token);
-    console.log('✅ System pre-warmed');
+  // Verify JSONPlaceholder connectivity
+  const healthCheck = http.get(`${CONFIG.BASE_URL}/posts/1`);
+  if (healthCheck.status !== 200) {
+    throw new Error('❌ JSONPlaceholder API is not accessible');
   }
+  
+  console.log('✅ JSONPlaceholder API connectivity verified');
+  return { baseUrl: CONFIG.BASE_URL };
 }
 
 /**
  * Main test function - runs for each virtual user
  */
 export default function () {
-  // Get authenticated user for this session
-  const authUser = getRandomAuthenticatedUser();
+  const userId = Math.floor(Math.random() * 10) + 1; // Random user 1-10
+  console.log(`📝 VU${__VU}: Testing POST operations as User ID: ${userId}`);
+
+  // Test 1: Create new post (expense)
+  const postData = {
+    title: `Business Expense Report - User ${userId} - ${new Date().toISOString().split('T')[0]}`,
+    body: `Travel and office supplies expense. Amount: $${Math.floor(Math.random() * 800) + 100}. Category: Business Travel. Submitted by automated performance test.`,
+    userId: userId
+  };
   
-  if (!authUser.token) {
-    console.error('❌ Failed to authenticate user, skipping test iteration');
-    return;
+  const createPostResponse = http.post(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.POSTS}`,
+    JSON.stringify(postData),
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'create_post' }
+    }
+  );
+  
+  check(createPostResponse, {
+    '✅ Create post status 201': (r) => r.status === 201,
+    '✅ Create post response time < 1500ms': (r) => r.timings.duration < 1500,
+    '✅ Created post has ID': (r) => {
+      try {
+        const post = JSON.parse(r.body);
+        return post.id && post.id > 0;
+      } catch (e) {
+        return false;
+      }
+    },
+    '✅ Created post has correct title': (r) => {
+      try {
+        const post = JSON.parse(r.body);
+        return post.title && post.title.includes('Business Expense');
+      } catch (e) {
+        return false;
+      }
+    },
+  });
+  
+  let createdPostId = null;
+  if (createPostResponse.status === 201) {
+    try {
+      const post = JSON.parse(createPostResponse.body);
+      createdPostId = post.id;
+      createdPostIds.push(createdPostId);
+      console.log(`� Created expense post with ID: ${createdPostId}`);
+    } catch (e) {
+      console.error('❌ Failed to parse created post response');
+    }
   }
   
-  console.log(`👤 Running POST requests test for user: ${authUser.user.email}`);
+  sleep(2);
   
-  // Simulate user workflow: Check available types/budgets before creating expenses
-  
-  // Pre-check 1: Get expense types (realistic user behavior)
-  console.log('\n--- Pre-check: Get Expense Types ---');
-  expensePage.getExpenseTypes(authUser.token);
-  ThinkTime.medium(); // User reviews available expense types
-  
-  // Pre-check 2: Check available medical budget
-  console.log('\n--- Pre-check: Get Medical Budget ---');
-  medicalExpensePage.getAvailableAmount(authUser.token);
-  ThinkTime.short(); // Quick budget check
-  
-  // Test 1: Create regular expense
-  console.log('\n--- Test 1: Create Regular Expense ---');
-  const expenseData = {
-    description: `Business expense ${DataGenerator.randomString(6)}`,
-    amount: DataGenerator.randomAmount(25, 300),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    expenseType: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.EXPENSE_TYPES),
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()), // November 2024 onwards
-    category: 'Business',
-    notes: `Performance test expense created at ${new Date().toISOString()}`,
-    receiptRequired: Math.random() > 0.5,
-    projectCode: `PROJ-${DataGenerator.randomNumber(1000, 9999)}`
+  // Test 2: Create comment (expense note/approval)
+  const commentData = {
+    postId: createdPostId || 1, // Use created post ID or default to 1
+    name: `Manager Review - User ${userId}`,
+    email: `manager${userId}@company.com`,
+    body: `Expense approved. All receipts verified. Amount within budget limits. Processed by: Manager ${userId}.`
   };
   
-  const expenseResponse = expensePage.createExpense(authUser.token, expenseData);
+  const createCommentResponse = http.post(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.COMMENTS}`,
+    JSON.stringify(commentData),
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'create_comment' }
+    }
+  );
   
-  if (expenseResponse.createdExpense && expenseResponse.createdExpense.id) {
-    createdExpenseIds.push(expenseResponse.createdExpense.id);
+  check(createCommentResponse, {
+    '✅ Create comment status 201': (r) => r.status === 201,
+    '✅ Create comment response time < 1000ms': (r) => r.timings.duration < 1000,
+    '✅ Created comment has ID': (r) => {
+      try {
+        const comment = JSON.parse(r.body);
+        return comment.id && comment.id > 0;
+      } catch (e) {
+        return false;
+      }
+    },
+    '✅ Created comment has correct content': (r) => {
+      try {
+        const comment = JSON.parse(r.body);
+        return comment.body && comment.body.includes('approved');
+      } catch (e) {
+        return false;
+      }
+    },
+  });
+  
+  if (createCommentResponse.status === 201) {
+    try {
+      const comment = JSON.parse(createCommentResponse.body);
+      console.log(`💬 Created expense comment with ID: ${comment.id}`);
+    } catch (e) {
+      console.error('❌ Failed to parse created comment response');
+    }
   }
   
-  ThinkTime.medium(); // User reviews created expense
+  sleep(1);
   
-  // Test 2: Create medical expense
-  console.log('\n--- Test 2: Create Medical Expense ---');
-  const medicalExpenseData = {
-    description: `Medical treatment ${DataGenerator.randomString(6)}`,
-    amount: DataGenerator.randomAmount(50, 800),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    providerName: `Medical Center ${DataGenerator.randomString(8)}`,
-    treatmentType: DataGenerator.randomArrayElement(['Consultation', 'Treatment', 'Surgery', 'Pharmacy', 'Laboratory']),
-    notes: `Medical expense for performance testing - ${new Date().toISOString()}`,
-    patientName: `Test Patient ${DataGenerator.randomString(6)}`,
-    diagnosis: `Test diagnosis ${DataGenerator.randomString(8)}`
+  // Test 3: Create another post with different data
+  const secondPostData = {
+    title: `Monthly Report - User ${userId} - ${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+    body: `Monthly expense summary. Total: $${Math.floor(Math.random() * 1200) + 200}. Categories: Travel, Meals, Office supplies. Requires management approval.`,
+    userId: userId
   };
   
-  const medicalResponse = medicalExpensePage.createMedicalExpense(authUser.token, medicalExpenseData);
+  const createSecondPostResponse = http.post(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.POSTS}`,
+    JSON.stringify(secondPostData),
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'create_post' }
+    }
+  );
   
-  if (medicalResponse.createdExpense && medicalResponse.createdExpense.id) {
-    createdMedicalExpenseIds.push(medicalResponse.createdExpense.id);
+  check(createSecondPostResponse, {
+    '✅ Create second post status 201': (r) => r.status === 201,
+    '✅ Second post response time < 1500ms': (r) => r.timings.duration < 1500,
+    '✅ Second post has ID': (r) => {
+      try {
+        const post = JSON.parse(r.body);
+        return post.id && post.id > 0;
+      } catch (e) {
+        return false;
+      }
+    },
+  });
+  
+  if (createSecondPostResponse.status === 201) {
+    try {
+      const post = JSON.parse(createSecondPostResponse.body);
+      console.log(`📊 Created monthly report post with ID: ${post.id}`);
+    } catch (e) {
+      console.error('❌ Failed to parse second post response');
+    }
   }
   
-  ThinkTime.long(); // User carefully reviews medical expense details
-  
-  // Additional realistic POST operations
-  
-  // Test 3: Create another expense with different category
-  console.log('\n--- Test 3: Create Travel Expense ---');
-  const travelExpense = {
-    description: `Travel expense ${DataGenerator.randomString(6)}`,
-    amount: DataGenerator.randomAmount(100, 500),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    expenseType: 'Travel',
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    category: 'Travel',
-    destination: `${DataGenerator.randomArrayElement(CONFIG.TEST_DATA.LOCATIONS.CITIES)}`,
-    purpose: 'Business meeting',
-    notes: `Travel expense for client meeting - ${DataGenerator.randomString(10)}`,
-    mileage: DataGenerator.randomNumber(50, 500)
-  };
-  
-  expensePage.createExpense(authUser.token, travelExpense);
-  ThinkTime.medium();
-  
-  // Test 4: Create office supplies expense (different workflow)
-  console.log('\n--- Test 4: Create Office Supplies Expense ---');
-  const officeExpense = {
-    description: `Office supplies ${DataGenerator.randomString(6)}`,
-    amount: DataGenerator.randomAmount(10, 150),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    expenseType: 'Office Supplies',
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    category: 'Office',
-    vendor: `Office Store ${DataGenerator.randomString(6)}`,
-    notes: `Supplies for team - ${DataGenerator.randomString(8)}`,
-    urgency: DataGenerator.randomArrayElement(['Low', 'Medium', 'High'])
-  };
-  
-  expensePage.createExpense(authUser.token, officeExpense);
-  ThinkTime.short();
-  
-  // Test 5: Create another medical expense (different treatment type)
-  console.log('\n--- Test 5: Create Pharmacy Medical Expense ---');
-  const pharmacyExpense = {
-    description: `Pharmacy prescription ${DataGenerator.randomString(6)}`,
-    amount: DataGenerator.randomAmount(20, 200),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    providerName: `Pharmacy ${DataGenerator.randomString(8)}`,
-    treatmentType: 'Pharmacy',
-    notes: `Prescription medication - ${DataGenerator.randomString(10)}`,
-    prescriptionNumber: `RX-${DataGenerator.randomNumber(100000, 999999)}`,
-    medicationName: `Medication ${DataGenerator.randomString(8)}`
-  };
-  
-  medicalExpensePage.createMedicalExpense(authUser.token, pharmacyExpense);
-  ThinkTime.medium();
-  
-  // Simulate user reviewing their submissions
-  console.log('\n--- Post-creation Review ---');
-  expensePage.getMyExpenses(authUser.token, { limit: 5 });
-  ThinkTime.short();
-  
-  medicalExpensePage.getUserMedicalExpenses(authUser.token, { limit: 5 });
-  ThinkTime.medium();
-  
-  console.log(`✅ Completed POST requests test cycle for ${authUser.user.email}`);
-  console.log(`📝 Created expenses this session: ${createdExpenseIds.length} regular + ${createdMedicalExpenseIds.length} medical\n`);
+  sleep(1);
+  console.log(`✅ VU${__VU}: Completed POST operations test`);
 }
 
 /**
- * Teardown function - runs once after the test ends
+ * Teardown function - runs once after all tests complete
  */
 export function teardown(data) {
-  console.log('\n🏁 POST Requests Performance Test Completed');
-  console.log('📈 Check the summary report above for detailed metrics');
-  console.log('🔍 Key endpoints tested:');
-  console.log('   • POST /api/v1/expenses (regular expenses)');
-  console.log('   • POST /api/v1/medical-expenses (medical expenses)');
-  console.log('📊 Test scenarios covered:');
-  console.log('   • Business expense creation');
-  console.log('   • Medical expense creation');
-  console.log('   • Travel expense creation');
-  console.log('   • Office supplies expense creation');
-  console.log('   • Pharmacy expense creation');
-  console.log(`📝 Total expenses created: ${createdExpenseIds.length + createdMedicalExpenseIds.length}`);
-  
-  // Note: In a real environment, you might want to clean up created test data
-  if (createdExpenseIds.length > 0 || createdMedicalExpenseIds.length > 0) {
-    console.log('ℹ️ Note: Test data cleanup would be performed here in a real scenario');
-  }
+  console.log('🏁 POST Requests Performance Test completed');
+  console.log(`📊 Created ${createdPostIds.length} posts during testing`);
+  console.log('💡 Note: JSONPlaceholder doesn\'t persist data, so cleanup is not required');
 }

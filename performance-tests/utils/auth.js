@@ -1,8 +1,9 @@
 /**
  * Authentication Utilities for K6 Performance Tests
- * Expense Management API - Authentication Module
+ * JSONPlaceholder API - Simplified Authentication Module
  * 
- * This module handles user authentication and session management
+ * This module handles user simulation and session management for JSONPlaceholder
+ * Note: JSONPlaceholder doesn't require real authentication, so we simulate user sessions
  */
 
 import http from 'k6/http';
@@ -10,40 +11,35 @@ import { check, sleep } from 'k6';
 import { CONFIG } from '../config/config.js';
 
 /**
- * User authentication class
+ * User authentication class - Simplified for JSONPlaceholder
  */
 export class AuthService {
   constructor(baseUrl = CONFIG.BASE_URL) {
     this.baseUrl = baseUrl;
     this.sessions = new Map();
+    this.users = []; // Will store users from JSONPlaceholder
   }
   
   /**
-   * Authenticate a user and return auth token
-   * @param {Object} user - User credentials {email, password}
-   * @returns {String} Authentication token
+   * Get users from JSONPlaceholder and simulate authentication
+   * @returns {Array} Array of available users
    */
-  authenticate(user) {
-    const loginUrl = `${this.baseUrl}${CONFIG.ENDPOINTS.AUTH}`;
+  async initializeUsers() {
+    const usersUrl = `${this.baseUrl}${CONFIG.ENDPOINTS.USERS}`;
     
-    const loginPayload = {
-      email: user.email,
-      password: user.password
-    };
+    console.log('🔐 Initializing user sessions from JSONPlaceholder...');
     
-    console.log(`🔐 Authenticating user: ${user.email}`);
-    
-    const response = http.post(loginUrl, JSON.stringify(loginPayload), {
+    const response = http.get(usersUrl, {
       headers: CONFIG.HEADERS.DEFAULT,
       timeout: CONFIG.TIMEOUTS.DEFAULT
     });
     
     const authCheck = check(response, {
-      '✅ Authentication status is 200': (r) => r.status === 200,
-      '✅ Authentication response has token': (r) => {
+      '✅ User fetch status is 200': (r) => r.status === 200,
+      '✅ Users data available': (r) => {
         try {
-          const body = JSON.parse(r.body);
-          return body.token || body.access_token || body.accessToken;
+          const users = JSON.parse(r.body);
+          return Array.isArray(users) && users.length > 0;
         } catch (e) {
           return false;
         }

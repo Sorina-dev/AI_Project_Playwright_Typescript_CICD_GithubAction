@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  external_labels:
+    monitor: 'k6-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  
+  - job_name: 'k6'
+    static_configs:
+      - targets: ['localhost:6565']
+    scrape_interval: 5s
+    metrics_path: /metrics

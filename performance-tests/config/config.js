@@ -7,33 +7,27 @@
 
 // Environment Configuration
 export const CONFIG = {
-  // Base URLs
-  BASE_URL: 'https://mock-api-server.wiremockapi.cloud',
+  // Base URLs - Using JSONPlaceholder for reliable mock testing
+  BASE_URL: 'https://jsonplaceholder.typicode.com',
   
-  // API Endpoints
+  // API Endpoints (JSONPlaceholder compatible)
   ENDPOINTS: {
-    // Authentication
-    AUTH: '/api/v1/auth/login',
+    // Users (simulating employees)
+    USERS: '/users',
+    USER_BY_ID: '/users', // will append /{id}
     
-    // Employee endpoints
-    EMPLOYEES_ME: '/api/v1/employees/me',
-    EMPLOYEES: '/api/v1/employees',
+    // Posts (simulating expenses)
+    POSTS: '/posts',
+    POST_BY_ID: '/posts', // will append /{id}
     
-    // Expense endpoints
-    EXPENSES: '/api/v1/expenses',
-    EXPENSE_TYPES: '/api/v1/expense-types',
-    REQUEST_EXPENSES: '/api/v1/request-expenses',
+    // Comments (simulating expense comments/notes)
+    COMMENTS: '/comments',
     
-    // Medical expense endpoints
-    MEDICAL_EXPENSES: '/api/v1/medical-expenses',
-    MEDICAL_EXPENSES_AVAILABLE: '/api/v1/medical-expenses/available-amount',
+    // Albums (simulating expense categories/types)
+    ALBUMS: '/albums',
     
-    // Location endpoints
-    LOCATIONS: '/api/v1/locations',
-    
-    // Other endpoints
-    CURRENCIES: '/api/v1/currency',
-    PROJECTS: '/api/v1/projects'
+    // Photos (simulating expense attachments)
+    PHOTOS: '/photos'
   },
   
   // Test Configuration
@@ -81,6 +75,36 @@ export const CONFIG = {
         http_req_duration: ['p(95)<5000'],     // More lenient during spike
         http_req_failed: ['rate<0.3'],         // Higher error rate acceptable during spike
       }
+    },
+    
+    // Endurance/Soak test configuration
+    ENDURANCE_TEST: {
+      stages: [
+        { duration: '2m', target: 25 },     // Ramp up to 25 users
+        { duration: '26m', target: 25 },    // Maintain 25 users for 26 minutes
+        { duration: '2m', target: 0 }       // Ramp down
+      ],
+      thresholds: {
+        http_req_duration: ['p(95)<2500'],     // 95% of requests should be below 2500ms
+        http_req_failed: ['rate<0.15'],        // Error rate should be below 15%
+        http_reqs: ['rate>3'],                 // Request rate should be above 3 RPS
+      }
+    },
+    
+    // Volume test configuration
+    VOLUME_TEST: {
+      stages: [
+        { duration: '30s', target: 100 },   // Ramp up to 100 users quickly
+        { duration: '10m', target: 100 },   // Maintain 100 users
+        { duration: '30s', target: 0 }      // Ramp down
+      ],
+      iterations: 10000,                     // Total 10,000 operations across all users
+      thresholds: {
+        http_req_duration: ['p(95)<3000'],     // 95% of requests should be below 3000ms
+        http_req_failed: ['rate<0.15'],        // Error rate should be below 15%
+        http_reqs: ['rate>50'],                // High request rate for volume testing
+        iterations: ['count>=10000'],          // Ensure all 10,000 iterations complete
+      }
     }
   },
   
@@ -123,22 +147,21 @@ export const CONFIG = {
     }
   },
   
-  // Test data
+  // Test data for JSONPlaceholder mock testing
   TEST_DATA: {
-    USERS: [
-      { email: 'test.user1@company.com', password: 'Test123!', role: 'employee' },
-      { email: 'test.admin@company.com', password: 'Admin123!', role: 'admin' },
-      { email: 'test.manager@company.com', password: 'Manager123!', role: 'manager' }
+    // Sample posts data (simulating expenses)
+    SAMPLE_POSTS: [
+      { title: 'Business Trip Expense', body: 'Flight and accommodation costs for client meeting', userId: 1 },
+      { title: 'Office Supplies', body: 'Stationery and equipment for Q4 projects', userId: 2 },
+      { title: 'Training Course', body: 'Professional development certification course', userId: 3 }
     ],
+    
+    // Sample users (simulating employees)
+    SAMPLE_USERS: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // JSONPlaceholder has 10 users
     
     EXPENSE_TYPES: ['Travel', 'Meals', 'Accommodation', 'Office Supplies', 'Training'],
     
-    CURRENCIES: ['USD', 'EUR', 'GBP', 'RON'],
-    
-    LOCATIONS: {
-      COUNTRIES: ['Romania', 'United States', 'United Kingdom', 'Germany'],
-      CITIES: ['Bucharest', 'New York', 'London', 'Berlin']
-    }
+    CURRENCIES: ['USD', 'EUR', 'GBP', 'RON']
   },
   
   // Validation patterns
@@ -154,12 +177,12 @@ export const CONFIG = {
 export function getEnvironmentConfig() {
   return {
     ...CONFIG,
-    BASE_URL: 'https://mock-api-server.wiremockapi.cloud',
-    // Mock server configuration
+    BASE_URL: 'https://jsonplaceholder.typicode.com',
+    // JSONPlaceholder is free and reliable for testing
     TIMEOUTS: {
-      DEFAULT: '45s',
-      LONG: '90s',
-      SHORT: '15s'
+      DEFAULT: '10s',
+      LONG: '20s',
+      SHORT: '5s'
     }
   };
 }

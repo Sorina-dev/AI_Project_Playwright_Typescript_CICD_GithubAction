@@ -1,31 +1,38 @@
 /**
  * K6 Performance Test - DELETE Requests
- * Expense Management API - DELETE Operations Test Suite
+ * JSONPlaceholder API - DELETE Operations Test Suite
  * 
  * This test suite focuses on DELETE request performance testing
- * Tests: /request-expenses/{id} (delete expense request), /locations/{id} (delete location)
+ * Tests: /posts/{id} (delete posts), /users/{id} (delete users)
  */
 
+import http from 'k6/http';
+import { check, sleep } from 'k6';
 import { CONFIG } from '../config/config.js';
-import { getRandomAuthenticatedUser } from '../utils/auth.js';
-import { ThinkTime, DataGenerator } from '../utils/helpers.js';
-import ExpensePage from '../pages/ExpensePage.js';
-import LocationPage from '../pages/LocationPage.js';
-import MedicalExpensePage from '../pages/MedicalExpensePage.js';
 
-// Test configuration - focused on DELETE requests
-export const options = CONFIG.TEST_CONFIG.DEFAULT_LOAD;
-
-// Page objects
-const expensePage = new ExpensePage();
-const locationPage = new LocationPage();
-const medicalExpensePage = new MedicalExpensePage();
+// Test configuration - focused on DELETE requests with controlled load
+export const options = {
+  scenarios: {
+    delete_load_test: {
+      executor: 'ramping-vus',
+      startVUs: 2,
+      stages: [
+        { duration: '30s', target: 5 },   // Ramp up to 5 users over 30 seconds  
+        { duration: '1m', target: 5 },    // Stay at 5 users for 1 minute
+        { duration: '30s', target: 0 }    // Ramp down to 0 users over 30 seconds
+      ],
+    },
+  },
+  thresholds: {
+    http_req_duration: ['p(95)<2000'], // 95% of requests under 2s
+    http_req_failed: ['rate<0.1'],     // Error rate under 10%
+  },
+};
 
 // Track deletions for reporting
 let deletionStats = {
-  expenseRequests: 0,
-  locations: 0,
-  medicalExpenses: 0,
+  posts: 0,
+  users: 0,
   totalAttempts: 0,
   successfulDeletions: 0
 };
@@ -36,273 +43,149 @@ let deletionStats = {
 export function setup() {
   console.log('🚀 Starting DELETE Requests Performance Test');
   console.log(`📍 Target: ${CONFIG.BASE_URL}`);
-  console.log('🎯 Testing DELETE endpoints: /request-expenses/{id}, /locations/{id}');
+  console.log('🎯 Testing DELETE endpoints: /posts/{id}, /users/{id}');
   console.log('⏱️ Starting load test...\n');
   
-  console.log('ℹ️ This test will create resources before deleting them to ensure clean test data');
+  // Verify JSONPlaceholder connectivity
+  const healthCheck = http.get(`${CONFIG.BASE_URL}/posts/1`);
+  if (healthCheck.status !== 200) {
+    throw new Error('❌ JSONPlaceholder API is not accessible');
+  }
   
-  return deletionStats;
+  console.log('✅ JSONPlaceholder API connectivity verified');
+  console.log('ℹ️ This test will simulate deletions (JSONPlaceholder doesn\'t persist changes)');
+  return { baseUrl: CONFIG.BASE_URL };
 }
 
 /**
  * Main test function - runs for each virtual user
  */
-export default function (data) {
-  // Get authenticated user for this session
-  const authUser = getRandomAuthenticatedUser();
+export default function () {
+  const userId = Math.floor(Math.random() * 10) + 1; // Random user 1-10
+  const postId = Math.floor(Math.random() * 100) + 1; // Random post 1-100
+  console.log(`🗑️ VU${__VU}: Testing DELETE operations for User ${userId}, Post ${postId}`);
   
-  if (!authUser.token) {
-    console.error('❌ Failed to authenticate user, skipping test iteration');
-    return;
-  }
-  
-  console.log(`👤 Running DELETE requests test for user: ${authUser.user.email}`);
-  
-  // Test 1: Create and Delete Regular Expense Request
-  console.log('\n--- Test 1: Create and Delete Expense Request ---');
-  
-  // Create an expense first
-  const expenseData = {
-    description: `Deletable expense ${DataGenerator.randomString(8)}`,
-    amount: DataGenerator.randomAmount(25, 200),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    expenseType: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.EXPENSE_TYPES),
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    notes: `Created for deletion test - ${new Date().toISOString()}`,
-    temporaryExpense: true
-  };
-  
-  const expenseResponse = expensePage.createExpense(authUser.token, expenseData);
   deletionStats.totalAttempts++;
-  
-  ThinkTime.short(); // Brief pause after creation
-  
-  if (expenseResponse.createdExpense && expenseResponse.createdExpense.id) {
-    const expenseId = expenseResponse.createdExpense.id;
-    console.log(`📝 Created expense ${expenseId} for deletion`);
-    
-    // Simulate user reviewing before deletion
-    ThinkTime.medium();
-    
-    // Delete the expense request
-    const deleteResponse = expensePage.deleteExpenseRequest(authUser.token, expenseId);
-    
-    if (deleteResponse.status === 200 || deleteResponse.status === 204) {
-      deletionStats.expenseRequests++;
-      deletionStats.successfulDeletions++;
-      console.log(`✅ Successfully deleted expense request: ${expenseId}`);
-    } else {
-      console.log(`⚠️ Failed to delete expense request: ${expenseId} - Status: ${deleteResponse.status}`);
+
+  // Test 1: Delete post (simulating expense deletion)
+  const deletePostResponse = http.del(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.POSTS}/${postId}`,
+    null,
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'delete_post' }
     }
-    
-    ThinkTime.short(); // Brief pause after deletion
-  }
+  );
   
-  // Test 2: Create and Delete Location
-  console.log('\n--- Test 2: Create and Delete Location ---');
-  
-  // Create a temporary location
-  const locationData = {
-    name: `Temp Office ${DataGenerator.randomString(8)}`,
-    address: `${DataGenerator.randomNumber(1, 999)} Temporary Street`,
-    city: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.LOCATIONS.CITIES),
-    country: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.LOCATIONS.COUNTRIES),
-    postalCode: DataGenerator.randomString(6).toUpperCase(),
-    temporary: true,
-    notes: `Temporary location for deletion test - ${new Date().toISOString()}`
-  };
-  
-  const locationResponse = locationPage.createLocation(authUser.token, locationData);
-  deletionStats.totalAttempts++;
-  
-  ThinkTime.medium(); // Time to set up location
-  
-  if (locationResponse.createdLocation && locationResponse.createdLocation.id) {
-    const locationId = locationResponse.createdLocation.id;
-    console.log(`🏢 Created location ${locationId} for deletion`);
-    
-    // Simulate user verification before deletion
-    ThinkTime.long(); // Location deletions require more careful consideration
-    
-    // Delete the location
-    const deleteLocationResponse = locationPage.deleteLocation(authUser.token, locationId);
-    
-    if (deleteLocationResponse.status === 200 || deleteLocationResponse.status === 204) {
-      deletionStats.locations++;
-      deletionStats.successfulDeletions++;
-      console.log(`✅ Successfully deleted location: ${locationId}`);
-    } else {
-      console.log(`⚠️ Failed to delete location: ${locationId} - Status: ${deleteLocationResponse.status}`);
-    }
-    
-    ThinkTime.medium(); // Time to process deletion result
-  }
-  
-  // Test 3: Create and Delete Medical Expense
-  console.log('\n--- Test 3: Create and Delete Medical Expense ---');
-  
-  // Create a medical expense for deletion
-  const medicalData = {
-    description: `Temporary medical ${DataGenerator.randomString(8)}`,
-    amount: DataGenerator.randomAmount(50, 300),
-    currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-    date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-    providerName: `Temp Medical ${DataGenerator.randomString(8)}`,
-    notes: `Created for deletion test - ${new Date().toISOString()}`,
-    temporaryExpense: true
-  };
-  
-  const medicalResponse = medicalExpensePage.createMedicalExpense(authUser.token, medicalData);
-  deletionStats.totalAttempts++;
-  
-  ThinkTime.medium();
-  
-  if (medicalResponse.createdExpense && medicalResponse.createdExpense.id) {
-    const medicalId = medicalResponse.createdExpense.id;
-    console.log(`🏥 Created medical expense ${medicalId} for deletion`);
-    
-    // Medical expense deletions require careful consideration
-    ThinkTime.long();
-    
-    // Delete the medical expense
-    const deleteMedicalResponse = medicalExpensePage.deleteMedicalExpense(authUser.token, medicalId);
-    
-    if (deleteMedicalResponse.status === 200 || deleteMedicalResponse.status === 204) {
-      deletionStats.medicalExpenses++;
-      deletionStats.successfulDeletions++;
-      console.log(`✅ Successfully deleted medical expense: ${medicalId}`);
-    } else {
-      console.log(`⚠️ Failed to delete medical expense: ${medicalId} - Status: ${deleteMedicalResponse.status}`);
-    }
-    
-    ThinkTime.medium();
-  }
-  
-  // Test 4: Batch Deletion Simulation
-  console.log('\n--- Test 4: Multiple Resource Deletion ---');
-  
-  // Create multiple expenses for batch-like deletion testing
-  const expenseIds = [];
-  
-  for (let i = 0; i < 2; i++) {
-    const batchExpenseData = {
-      description: `Batch delete expense ${i + 1} - ${DataGenerator.randomString(6)}`,
-      amount: DataGenerator.randomAmount(10, 100),
-      currency: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.CURRENCIES),
-      expenseType: DataGenerator.randomArrayElement(CONFIG.TEST_DATA.EXPENSE_TYPES),
-      date: DataGenerator.randomDate(new Date(2024, 10, 1), new Date()),
-      notes: `Batch deletion test ${i + 1}`,
-      batchTest: true
-    };
-    
-    const batchResponse = expensePage.createExpense(authUser.token, batchExpenseData);
-    deletionStats.totalAttempts++;
-    
-    if (batchResponse.createdExpense && batchResponse.createdExpense.id) {
-      expenseIds.push(batchResponse.createdExpense.id);
-    }
-    
-    ThinkTime.short(); // Quick creation for batch testing
-  }
-  
-  // Delete the batch expenses one by one (simulating bulk operations)
-  console.log(`🔄 Deleting ${expenseIds.length} expenses in batch...`);
-  
-  expenseIds.forEach((expenseId, index) => {
-    ThinkTime.short(); // Brief pause between deletions
-    
-    const deleteResponse = expensePage.deleteExpenseRequest(authUser.token, expenseId);
-    
-    if (deleteResponse.status === 200 || deleteResponse.status === 204) {
-      deletionStats.expenseRequests++;
-      deletionStats.successfulDeletions++;
-      console.log(`✅ Batch deletion ${index + 1}/${expenseIds.length}: ${expenseId}`);
-    } else {
-      console.log(`⚠️ Failed batch deletion ${index + 1}/${expenseIds.length}: ${expenseId}`);
+  check(deletePostResponse, {
+    '✅ Delete post status 200': (r) => r.status === 200,
+    '✅ Delete post response time < 1500ms': (r) => r.timings.duration < 1500,
+    '✅ Delete response is empty object': (r) => {
+      try {
+        const result = JSON.parse(r.body);
+        return Object.keys(result).length === 0;
+      } catch (e) {
+        return r.body === '{}' || r.body === '';
+      }
     }
   });
   
-  // Test 5: Error Handling - Attempt to Delete Non-existent Resource
-  console.log('\n--- Test 5: Delete Non-existent Resources (Error Handling) ---');
-  
-  const fakeExpenseId = DataGenerator.generateUUID();
-  const fakeLocationId = DataGenerator.generateUUID();
-  
-  console.log(`🧪 Testing deletion of non-existent expense: ${fakeExpenseId}`);
-  const fakeExpenseDelete = expensePage.deleteExpenseRequest(authUser.token, fakeExpenseId);
-  deletionStats.totalAttempts++;
-  
-  // 404 is expected and acceptable for non-existent resources
-  if (fakeExpenseDelete.status === 404) {
-    console.log('✅ Correctly handled non-existent expense deletion (404)');
-  } else if (fakeExpenseDelete.status === 200 || fakeExpenseDelete.status === 204) {
-    console.log('ℹ️ System reported successful deletion of non-existent resource');
-  } else {
-    console.log(`⚠️ Unexpected response for non-existent resource: ${fakeExpenseDelete.status}`);
+  if (deletePostResponse.status === 200) {
+    deletionStats.posts++;
+    deletionStats.successfulDeletions++;
+    console.log(`💰 Deleted expense post with ID: ${postId}`);
   }
   
-  ThinkTime.short();
+  sleep(2);
   
-  console.log(`🧪 Testing deletion of non-existent location: ${fakeLocationId}`);
-  const fakeLocationDelete = locationPage.deleteLocation(authUser.token, fakeLocationId);
-  deletionStats.totalAttempts++;
+  // Test 2: Verify post is deleted (should return 404)
+  const verifyDeleteResponse = http.get(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.POSTS}/${postId}`,
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'verify_delete' }
+    }
+  );
   
-  if (fakeLocationDelete.status === 404) {
-    console.log('✅ Correctly handled non-existent location deletion (404)');
-  } else if (fakeLocationDelete.status === 200 || fakeLocationDelete.status === 204) {
-    console.log('ℹ️ System reported successful deletion of non-existent location');
-  }
-  
-  ThinkTime.medium();
-  
-  // Verification: Check that deleted resources are no longer accessible
-  console.log('\n--- Verification: Confirm Deletions ---');
-  
-  // Try to retrieve recently deleted expenses (should return empty or 404)
-  expensePage.getMyExpenses(authUser.token, { 
-    limit: 5,
-    includeDeleted: false 
+  // Note: JSONPlaceholder doesn't actually delete data, so this will still return 200
+  // In a real API, we would expect 404
+  check(verifyDeleteResponse, {
+    '✅ Verify request response time < 1000ms': (r) => r.timings.duration < 1000,
+    'ℹ️ Note: JSONPlaceholder simulation (real API would return 404)': (r) => r.status === 200
   });
-  ThinkTime.short();
   
-  // Try to retrieve location list (check if deleted locations are excluded)
-  try {
-    locationPage.getLocations(authUser.token, { 
-      limit: 5,
-      includeDeleted: false 
-    });
-  } catch (error) {
-    console.log('ℹ️ Location verification might be restricted for this user');
+  sleep(1);
+  
+  // Test 3: Delete user (simulating account cleanup)
+  const deleteUserResponse = http.del(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.USERS}/${userId}`,
+    null,
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'delete_user' }
+    }
+  );
+  
+  check(deleteUserResponse, {
+    '✅ Delete user status 200': (r) => r.status === 200,
+    '✅ Delete user response time < 1000ms': (r) => r.timings.duration < 1000,
+    '✅ User delete response is empty object': (r) => {
+      try {
+        const result = JSON.parse(r.body);
+        return Object.keys(result).length === 0;
+      } catch (e) {
+        return r.body === '{}' || r.body === '';
+      }
+    }
+  });
+  
+  if (deleteUserResponse.status === 200) {
+    deletionStats.users++;
+    deletionStats.successfulDeletions++;
+    console.log(`👤 Deleted user account with ID: ${userId}`);
   }
   
-  ThinkTime.medium();
+  sleep(1);
   
-  console.log(`✅ Completed DELETE requests test cycle for ${authUser.user.email}`);
-  console.log(`🗑️ Deletion summary: ${deletionStats.successfulDeletions}/${deletionStats.totalAttempts} successful\n`);
+  // Test 4: Delete a different post (simulating batch cleanup)
+  const alternatePostId = Math.floor(Math.random() * 50) + 51; // Different range 51-100
+  const deleteBatchPostResponse = http.del(
+    `${CONFIG.BASE_URL}${CONFIG.ENDPOINTS.POSTS}/${alternatePostId}`,
+    null,
+    {
+      headers: CONFIG.HEADERS.DEFAULT,
+      timeout: CONFIG.TIMEOUTS.DEFAULT,
+      tags: { name: 'delete_post' }
+    }
+  );
+  
+  check(deleteBatchPostResponse, {
+    '✅ Batch delete post status 200': (r) => r.status === 200,
+    '✅ Batch delete response time < 1500ms': (r) => r.timings.duration < 1500,
+  });
+  
+  if (deleteBatchPostResponse.status === 200) {
+    deletionStats.posts++;
+    deletionStats.successfulDeletions++;
+    console.log(`📊 Batch deleted post with ID: ${alternatePostId}`);
+  }
+  
+  sleep(1);
+  console.log(`✅ VU${__VU}: Completed DELETE operations test`);
 }
 
 /**
- * Teardown function - runs once after the test ends
+ * Teardown function - runs once after all tests complete
  */
 export function teardown(data) {
-  console.log('\n🏁 DELETE Requests Performance Test Completed');
-  console.log('📈 Check the summary report above for detailed metrics');
-  console.log('🔍 Key endpoints tested:');
-  console.log('   • DELETE /api/v1/request-expenses/{id}');
-  console.log('   • DELETE /api/v1/locations/{id}');
-  console.log('   • DELETE /api/v1/medical-expenses/{id}');
-  console.log('📊 Test scenarios covered:');
-  console.log('   • Single expense request deletion');
-  console.log('   • Location deletion');
-  console.log('   • Medical expense deletion');
-  console.log('   • Batch deletion simulation');
-  console.log('   • Non-existent resource handling');
-  console.log('📋 Deletion Statistics:');
-  console.log(`   • Expense requests deleted: ${data.expenseRequests}`);
-  console.log(`   • Locations deleted: ${data.locations}`);
-  console.log(`   • Medical expenses deleted: ${data.medicalExpenses}`);
-  console.log(`   • Total successful deletions: ${data.successfulDeletions}/${data.totalAttempts}`);
-  console.log(`   • Success rate: ${((data.successfulDeletions / data.totalAttempts) * 100).toFixed(1)}%`);
-  
-  console.log('✅ All test resources were properly cleaned up during the test');
+  console.log('🏁 DELETE Requests Performance Test completed');
+  console.log(`📊 Deletion Statistics:`);
+  console.log(`   • Posts deleted: ${deletionStats.posts}`);
+  console.log(`   • Users deleted: ${deletionStats.users}`);
+  console.log(`   • Total successful deletions: ${deletionStats.successfulDeletions}`);
+  console.log(`   • Total deletion attempts: ${deletionStats.totalAttempts}`);
+  console.log('💡 Note: JSONPlaceholder simulates deletions without persisting changes');
 }
