@@ -276,16 +276,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install k6
 
-      - name: Install performance test dependencies
-        working-directory: ./performance-tests
-        run: npm install --production
+      - name: Verify K6 installation
+        run: k6 version
 
       - name: Run K6 Performance Tests - Quick Load Test
         working-directory: ./performance-tests
         run: |
-          echo "🚀 Starting K6 Performance Tests against Mock Server"
-          echo "📍 Target: https://mock-api-server.wiremockapi.cloud"
-          k6 run --out html=k6-quick-report.html --stage 30s:10,1m:10,30s:0 main-performance-test.js
+          echo "🚀 Starting K6 Performance Tests against JSONPlaceholder"
+          echo "📍 Target: https://jsonplaceholder.typicode.com"
+          k6 run --out html=k6-quick-report.html --stage 30s:10,1m:10,30s:0 tests/main-performance-test.js
         env:
           CI: true
 
@@ -308,7 +307,8 @@ jobs:
           echo "" >> k6-summary.md
           echo "## Test Execution Summary" >> k6-summary.md
           echo "- **Test Date**: $(date)" >> k6-summary.md
-          echo "- **Target Environment**: Mock API Server" >> k6-summary.md
+          echo "- **Target Environment**: JSONPlaceholder API" >> k6-summary.md
+          echo "- **Base URL**: https://jsonplaceholder.typicode.com" >> k6-summary.md
           echo "- **Test Type**: Load Testing (CI/CD Pipeline)" >> k6-summary.md
           echo "" >> k6-summary.md
           echo "## Test Files Executed" >> k6-summary.md

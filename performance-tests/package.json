@@ -2,28 +2,27 @@
   "name": "expense-management-k6-performance-tests",
   "version": "1.0.0",
   "description": "K6 Performance Testing Suite for Expense Management API using Page Object Model (POM) design pattern",
-  "main": "main-performance-test.js",
+  "main": "tests/main-performance-test.js",
   "scripts": {
-    "test": "k6 run main-performance-test.js",
+    "test": "k6 run tests/main-performance-test.js",
     "test:get": "k6 run tests/get-requests.test.js",
     "test:post": "k6 run tests/post-requests.test.js", 
     "test:put": "k6 run tests/put-requests.test.js",
     "test:delete": "k6 run tests/delete-requests.test.js",
     "test:stress": "k6 run tests/stress-test.js",
-    "test:report": "k6 run --out html=reports/performance-report.html main-performance-test.js",
-    "test:json": "k6 run --out json=reports/results.json main-performance-test.js",
+    "test:endurance": "k6 run tests/endurance-test.js",
+    "test:volume": "k6 run tests/volume-test.js",
+    "test:report": "k6 run --out html=reports/performance-report.html tests/main-performance-test.js",
+    "test:json": "k6 run --out json=reports/results.json tests/main-performance-test.js",
     "test:all": "npm run test:get && npm run test:post && npm run test:put && npm run test:delete",
-    "test:ci": "k6 run --stage 30s:10,1m:10,30s:0 main-performance-test.js",
-    "test:ci-report": "k6 run --out html=k6-report.html --stage 30s:10,1m:10,30s:0 main-performance-test.js",
+    "test:ci": "k6 run --stage 30s:10,1m:10,30s:0 tests/main-performance-test.js",
+    "test:ci-report": "k6 run --out html=k6-report.html --stage 30s:10,1m:10,30s:0 tests/main-performance-test.js",
     "test:ci-all": "k6 run tests/get-requests.test.js && k6 run tests/post-requests.test.js && k6 run tests/put-requests.test.js && k6 run tests/delete-requests.test.js",
-    "test:load": "k6 run --vus 50 --duration 5m main-performance-test.js",
-    "test:spike": "k6 run --stage 30s:10,1m:100,30s:10 main-performance-test.js",
-    "test:endurance": "k6 run --vus 25 --duration 30m main-performance-test.js",
-    "test:soak": "k6 run --vus 25 --duration 60m main-performance-test.js",
-    "test:volume": "k6 run --vus 100 --iterations 10000 main-performance-test.js",
-    "test:debug": "k6 run --iterations 1 --vus 1 main-performance-test.js",
-    "test:grafana": "k6 run --out influxdb=http://localhost:8086/k6 main-performance-test.js",
-    "test:load:grafana": "k6 run --out influxdb=http://localhost:8086/k6 --vus 50 --duration 5m main-performance-test.js",
+    "test:load": "k6 run --vus 50 --duration 5m tests/main-performance-test.js",
+    "test:spike": "k6 run --stage 30s:10,1m:100,30s:10 tests/main-performance-test.js",
+    "test:debug": "k6 run --iterations 1 --vus 1 tests/main-performance-test.js",
+    "test:grafana": "k6 run --out influxdb=http://localhost:8086/k6 tests/main-performance-test.js",
+    "test:load:grafana": "k6 run --out influxdb=http://localhost:8086/k6 --vus 50 --duration 5m tests/main-performance-test.js",
     "test:stress:grafana": "k6 run --out influxdb=http://localhost:8086/k6 tests/stress-test.js",
     "test:endurance:grafana": "k6 run --out influxdb=http://localhost:8086/k6 tests/endurance-test.js",
     "grafana:start": "cd grafana-stack && docker-compose up -d",
@@ -32,17 +31,17 @@
     "clean": "rm -rf reports/*.html reports/*.json || true",
     "setup": "mkdir -p reports",
     "validate": "k6 version && echo 'K6 is properly installed'",
-    "help": "echo 'Available commands: test, test:stress, test:load, test:spike, test:endurance, test:soak, test:volume, test:grafana, grafana:start, test:report, test:all, test:debug'"
+    "help": "echo 'Available commands: test, test:stress, test:load, test:spike, test:endurance, test:grafana, grafana:start, test:report, test:all, test:debug'"
   },
   "directories": {
     "test": "tests",
-    "lib": "pages",
+    "lib": "pages", 
     "config": "config"
   },
   "keywords": [
     "k6",
     "performance-testing",
-    "load-testing",
+    "load-testing", 
     "stress-testing",
     "api-testing",
     "page-object-model",
@@ -61,20 +60,12 @@
     "url": "https://github.com/Sorina-dev/Project_Playwright_Typescript_CICD_GithubAction/issues"
   },
   "homepage": "https://github.com/Sorina-dev/Project_Playwright_Typescript_CICD_GithubAction#readme",
-  "devDependencies": {
-    "k6": ">=0.40.0"
-  },
   "engines": {
     "node": ">=14.0.0"
   },
-  "config": {
-    "k6": {
-      "version": ">=0.40.0"
-    }
-  },
   "performance-test-info": {
-    "target-api": "Expense Management API",
-    "base-url": "https://mock-api-server.wiremockapi.cloud",
+    "target-api": "JSONPlaceholder API",
+    "base-url": "https://jsonplaceholder.typicode.com",
     "test-types": [
       "Load Testing",
       "Stress Testing", 
