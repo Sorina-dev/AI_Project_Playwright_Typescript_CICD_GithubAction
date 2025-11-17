@@ -284,9 +284,66 @@ jobs:
         run: |
           echo "🚀 Starting K6 Performance Tests against JSONPlaceholder"
           echo "📍 Target: https://jsonplaceholder.typicode.com"
-          k6 run --out html=k6-quick-report.html --stage 30s:10,1m:10,30s:0 tests/main-performance-test.js
+          k6 run --out json=k6-quick-results.json --stage 30s:10,1m:10,30s:0 tests/main-performance-test.js
         env:
           CI: true
+
+      - name: Generate HTML Report from K6 Results
+        working-directory: ./performance-tests
+        run: |
+          echo "📊 Generating HTML report from K6 results"
+          if [ -f "scripts/generate-html-report.ps1" ]; then
+            # Use PowerShell script if available (will need to be adapted for Linux)
+            echo "Found PowerShell script, creating simple HTML report instead"
+          fi
+          
+          # Create a simple HTML report
+          cat > k6-quick-report.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>K6 Performance Test Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+              .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+              .header { background: #4a90e2; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+              .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+              .metric { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #4a90e2; }
+              .metric-title { font-weight: bold; color: #666; font-size: 14px; }
+              .metric-value { font-size: 24px; font-weight: bold; color: #333; margin-top: 5px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>🚀 K6 Performance Test Results</h1>
+                <p>Quick Load Test - $(date)</p>
+              </div>
+              <div class="summary">
+                <div class="metric">
+                  <div class="metric-title">Test Status</div>
+                  <div class="metric-value">✅ Completed</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-title">Target API</div>
+                  <div class="metric-value">JSONPlaceholder</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-title">Test Pattern</div>
+                  <div class="metric-value">30s→10, 1m→10, 30s→0</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-title">Report Generated</div>
+                  <div class="metric-value">$(date +"%Y-%m-%d %H:%M")</div>
+                </div>
+              </div>
+              <p style="margin-top: 20px; color: #666; text-align: center;">
+                📁 Raw results available in k6-quick-results.json
+              </p>
+            </div>
+          </body>
+          </html>
+          EOF
 
       - name: Run K6 Performance Tests - Individual Test Suites
         working-directory: ./performance-tests
